@@ -5,6 +5,7 @@
 #include <geometry_msgs/Twist.h>
 #include <vector>
 #include <deque>
+#include <chrono>
 
 class CmdVel
 {
@@ -37,6 +38,7 @@ private:
     std::deque<float> buffer_x;
     std::deque<float> buffer_y;
     float encoder_left, encoder_right, encoder_left_prev, encoder_right_prev;
+    std::chrono::time_point<std::chrono::system_clock> time_prev = std::chrono::system_clock::now();
 };
 
 #endif

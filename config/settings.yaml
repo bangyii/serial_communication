@@ -1,0 +1,26 @@
+### Settings serial communication node
+usb_port: "/dev/ttyUSB0"
+publish_odom_tf: false
+apply_vel_filter: true
+odom_update_method: "odom"
+
+wheel_acc_limit: 10.0
+vel_filter_size: 5
+
+## calibration parameters odometry
+calibration_v_angular: 0.88
+calibration_v_linear: 0.92
+calibration_cmd_ang: 0.46
+calibration_cmd_lin: 0.7
+
+## calibration parameters imu
+bias_acc_x: 0.040 
+bias_acc_y: -0.038 
+bias_acc_z: 0 
+bias_gyro_x: -0.090
+bias_gyro_y: 0.072 
+bias_gyro_z: -0.006 
+cal_imu_acc: 1.0
+cal_imu_gyro: 0.07 #2*pi/90
+
+

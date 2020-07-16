@@ -1,0 +1,56 @@
+26-11-2019
+
+Calibration parameters
+usb_port: "/dev/ttyUSB0"
+wheel_acc_limit: 10.0
+publish_odom_tf: false
+calibration_v_angular: 0.22
+calibration_v_linear: 0.46
+calibration_cmd_ang: 0.54
+calibration_cmd_lin: 1.10
+vel_filter_size: 5
+apply_vel_filter: true
+
+# offsets imu
+bias_acc_x: 0.040 
+bias_acc_y: -0.038 
+bias_acc_z: 0 # 0.0
+bias_gyro_x: -2.566 
+bias_gyro_y: 2.071 
+bias_gyro_z: -0.177
+cal_imu_acc: 1.0
+cal_imu_gyro: 1.0
+
+Calibration Results
+[INFO] [1574753742.180892]: Aligning base with wall
+[INFO] [1574753806.852113]: Odom error: -0.194367 percent
+[INFO] [1574753806.853382]: Imu error: -0.127137 percent
+[INFO] [1574753806.854468]: imu corr 0.998729
+[INFO] [1574753806.855346]: odom corr 0.998056
+[INFO] [1574753807.156929]: Aligning base with wall
+[INFO] [1574753837.141749]: Odom error: -0.345959 percent
+[INFO] [1574753837.142944]: Imu error: -0.310757 percent
+[INFO] [1574753837.143930]: imu corr 0.998729
+[INFO] [1574753837.144949]: imu corr 0.996892
+[INFO] [1574753837.145859]: odom corr 0.998056
+[INFO] [1574753837.146727]: odom corr 0.996540
+[INFO] [1574753837.448239]: Aligning base with wall
+[INFO] [1574753857.377598]: Odom error: -0.306980 percent
+[INFO] [1574753857.378908]: Imu error: -0.060180 percent
+[INFO] [1574753857.379906]: imu corr 0.998729
+[INFO] [1574753857.380948]: imu corr 0.996892
+[INFO] [1574753857.381928]: imu corr 0.999398
+[INFO] [1574753857.382970]: odom corr 0.998056
+[INFO] [1574753857.383927]: odom corr 0.996540
+[INFO] [1574753857.384948]: odom corr 0.996930
+[INFO] [1574753857.687003]: Aligning base with wall
+[INFO] [1574753872.480676]: Odom error: -0.041766 percent
+[INFO] [1574753872.481727]: Imu error: -0.221303 percent
+[INFO] [1574753872.482643]: imu corr 0.998729
+[INFO] [1574753872.483580]: imu corr 0.996892
+[INFO] [1574753872.484402]: imu corr 0.999398
+[INFO] [1574753872.485330]: imu corr 0.997787
+[INFO] [1574753872.486172]: odom corr 0.998056
+[INFO] [1574753872.487049]: odom corr 0.996540
+[INFO] [1574753872.487886]: odom corr 0.996930
+[INFO] [1574753872.488777]: odom corr 0.999582

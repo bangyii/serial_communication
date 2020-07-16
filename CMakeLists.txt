@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   tf
+  scat_libs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -108,7 +109,7 @@ find_package(Boost REQUIRED COMPONENTS system)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES serial_communication
-#  CATKIN_DEPENDS geometry_msgs roscpp sensor_msgs std_msgs tf
+ CATKIN_DEPENDS geometry_msgs roscpp sensor_msgs std_msgs tf scat_libs
 #  DEPENDS system_lib
 )
 
@@ -212,8 +213,7 @@ include_directories(
 add_library(serial_communication src/serial_communication.cpp)
 add_library(cmd_vel src/cmd_vel.cpp)
 add_library(odom src/odom.cpp)
-# add_library
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 
 
 add_executable(${PROJECT_NAME}_node src/serial_communication_node.cpp)

@@ -1,7 +1,8 @@
 #include <serial_communication/serial_communication.h>
 #include <serial_communication/odom.h>
 #include <serial_communication/cmd_vel.h>
-#include <serial_communication/rosmsg.h>
+#include <scat_libs/rosmsg.h>
+#include <scat_libs/base_utils.h>
 
 #include <sensor_msgs/Imu.h>			// ROS message used for linear and angular accelerations
 #include <tf/tf.h>
@@ -179,6 +180,7 @@ int main(int argc, char **argv)
 
 		// Publish IMU data
 		acceleration_pub.publish(rosmsg::makeIMU(rosmsg::makeHeader("base_footprint", ros::Time::now()),
+												0,0,0,
 												imuReadings[3],imuReadings[4],imuReadings[5],
 												imuReadings[0],imuReadings[1],imuReadings[2],
 												CovOrient,CovGyro,CovAcc));
