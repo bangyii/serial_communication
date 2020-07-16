@@ -1,5 +1,6 @@
 #include <serial_communication/cmd_vel.h>
 #define ENCODERCIR 16384.
+#include <cmath>
 
 CmdVel::CmdVel()
 {
@@ -112,9 +113,9 @@ std::vector<float> CmdVel::getVelFromEncoder(std::vector<float> encoder)
         v_left = v_left_prev;
 
     // Deadzone the velocities, to avoid accumulation of noise in steady position
-    if (fabs(v_right) < 0.01 || fabs(v_right) > 5 || isnan(v_right))
+    if (fabs(v_right) < 0.01 || fabs(v_right) > 5 || std::isnan(v_right))
         v_right = 0.0;
-    if (fabs(v_left) < 0.01 || fabs(v_left) > 5 || isnan(v_left))
+    if (fabs(v_left) < 0.01 || fabs(v_left) > 5 || std::isnan(v_left))
         v_left = 0.0;
 
     // Apply medianfilter to velocities
