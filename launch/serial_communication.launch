@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <node name="serial_communication" pkg="serial_communication" type="serial_communication" output="screen">
+  <node name="serial_communication" pkg="serial_communication" type="serial_communication_node" output="screen">
     <rosparam command="load" file="$(find serial_communication)/config/settings.yaml" />
     <!--remap from="" to=""/-->
   </node>
