@@ -64,9 +64,9 @@ std::vector<float> Odom::getIMU(std::vector<float> raw)
 	ax = raw[0] / 16384.0 * cal_imu_acc_ - bias_acc_x_;
 	ay = raw[1] / 16384.0 * cal_imu_acc_ - bias_acc_y_;
 	az = raw[2] / 16384.0 * cal_imu_acc_ - bias_acc_z_;
-	gx = raw[3] / 121.0 * cal_imu_gyro_ - bias_gyro_x_;
-	gy = raw[4] / 121.0 * cal_imu_gyro_ - bias_gyro_y_;
-	gz = raw[5] / 121.0 * cal_imu_gyro_ - bias_gyro_z_;
+	gx = raw[3] / 131.0 / 180.0 * 3.14159265359 * cal_imu_gyro_ - bias_gyro_x_;
+	gy = raw[4] / 131.0 / 180.0 * 3.14159265359 * cal_imu_gyro_ - bias_gyro_y_;
+	gz = raw[5] / 131.0 / 180.0 * 3.14159265359 * cal_imu_gyro_ - bias_gyro_z_;
 	return std::vector<float> ({ax, ay, az, gx, gy, gz});
 }
 
@@ -75,16 +75,19 @@ std::vector<float> Odom::getOdom(std::vector<float> velocity)
 	float v_left = velocity[0];
 	float v_right = velocity[1];
 	// Odometry calculation
-	v_linear = (v_right + v_left) / 2 * calibration_v_linear_/2;
-	v_angular = (v_right - v_left) / ( base_width / 4) * calibration_v_angular_/2;
+	v_linear = (v_right + v_left) / 2 * calibration_v_linear_;
+	v_angular = (v_right - v_left) / ( base_width / 4) * calibration_v_angular_;
 	std::chrono::duration<float> elapsed_seconds = std::chrono::system_clock::now() - time_prev;
 	float dt = elapsed_seconds.count();
+
 	float delta_x = v_linear * cos(theta_odom) * dt;
 	float delta_y = v_linear * sin(theta_odom) * dt;
 	float delta_th = v_angular * dt;
 	x_odom += delta_x;
 	y_odom += delta_y;
 	theta_odom += delta_th;
+
+//	ROS_INFO("Time difference since last cmd calc: %f \t dx: %f \t dy: %f", dt, delta_x, delta_y);
 
 	//Set previous time to now
 	time_prev = std::chrono::system_clock::now();

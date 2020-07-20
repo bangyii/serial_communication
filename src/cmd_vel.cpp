@@ -89,7 +89,7 @@ std::vector<float> CmdVel::getVelFromEncoder(std::vector<float> encoder)
     float diff_enc_right = encoder_right - encoder_right_prev;
 
 	//Get difference in time
-	float dt = (std::chrono::system_clock::now() - time_prev).count();
+	float dt = (std::chrono::system_clock::now() - time_prev).count() / 1000000000.0;
 
     if (fabs(diff_enc_right) <= ENCODERCIR / 2)
         f_right = diff_enc_right;
@@ -105,14 +105,15 @@ std::vector<float> CmdVel::getVelFromEncoder(std::vector<float> encoder)
     else
         f_left = diff_enc_left - ENCODERCIR;
 
-    v_right = -f_right / ENCODERCIR * M_PI * wheel_diameter * dt;
-    v_left = f_left / ENCODERCIR * M_PI * wheel_diameter * dt;
-
+    v_right = f_right / ENCODERCIR * M_PI * wheel_diameter / dt;
+    v_left = -f_left / ENCODERCIR * M_PI * wheel_diameter / dt;
+//	ROS_INFO("%f\t%f\t%f\t%f", f_right, f_right/ENCODERCIR, f_right/ENCODERCIR * M_PI, wheel_diameter / dt);
+//	ROS_INFO("Time difference: %f \t vleft: %f \t vright: %f", dt, v_left, v_right);
     // Sometimes data gets lost and spikes are seen in the velocity readouts.
     // This is solved by limiting the max difference between subsequent velocity readouts.
-    if (fabs(v_right - v_right_prev) * dt > wheel_acc_limit_)
+    if (fabs(v_right - v_right_prev) / dt > wheel_acc_limit_)
         v_right = v_right_prev;
-    if (fabs(v_left - v_left_prev) * dt > wheel_acc_limit_)
+    if (fabs(v_left - v_left_prev) / dt > wheel_acc_limit_)
         v_left = v_left_prev;
 
     // Deadzone the velocities, to avoid accumulation of noise in steady position
