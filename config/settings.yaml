@@ -8,19 +8,19 @@ wheel_acc_limit: 10.0
 vel_filter_size: 5
 
 ## calibration parameters odometry
-calibration_v_angular: 0.88
-calibration_v_linear: 0.92
+calibration_v_angular: 1.0 #0.88
+calibration_v_linear: 0.92 #0.92
 calibration_cmd_ang: 0.46
 calibration_cmd_lin: 0.7
 
 ## calibration parameters imu
-bias_acc_x: 0.040 
-bias_acc_y: -0.038 
+bias_acc_x: 0.035
+bias_acc_y: 0.015
 bias_acc_z: 0 
-bias_gyro_x: -0.090
-bias_gyro_y: 0.072 
-bias_gyro_z: -0.006 
+bias_gyro_x: 0.0
+bias_gyro_y: 0.0 
+bias_gyro_z: -0.0025
 cal_imu_acc: 1.0
-cal_imu_gyro: 0.07 #2*pi/90
+cal_imu_gyro: 1.0
 
 

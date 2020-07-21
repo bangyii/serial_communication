@@ -76,12 +76,12 @@ std::vector<float> Odom::getOdom(std::vector<float> velocity)
 	float v_right = velocity[1];
 	// Odometry calculation
 	v_linear = (v_right + v_left) / 2 * calibration_v_linear_;
-	v_angular = (v_right - v_left) / ( base_width / 4) * calibration_v_angular_;
+	v_angular = (v_right - v_left) / (base_width) * calibration_v_angular_;
 	std::chrono::duration<float> elapsed_seconds = std::chrono::system_clock::now() - time_prev;
 	float dt = elapsed_seconds.count();
 
-	float delta_x = v_linear * cos(theta_odom) * dt;
-	float delta_y = v_linear * sin(theta_odom) * dt;
+	float delta_x = v_linear * dt * cos(theta_odom * v_angular * dt / 2);
+        float delta_y = v_linear * dt * sin(theta_odom * v_angular * dt / 2);
 	float delta_th = v_angular * dt;
 	x_odom += delta_x;
 	y_odom += delta_y;
