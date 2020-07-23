@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "serial_communication"); // Initialize the node
 	ros::NodeHandle node_handle("~");
-	SerialComm serial;
+	SerialComm serial("/dev/ttyUSB0");
 	Odom odom;
 	CmdVel cmdVel;
 
