@@ -55,12 +55,12 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 		velocitybuf[1] = v_right_cmd / VelocityMax * 500;
 
 		//Left velocity is within deadzone
-		if(velocitybuf[0] < 1500 && velocitybuf[0] > (1500 - deadzone_pulse_width)) velocitybuf[0] = 1500 - deadzone_pulse_width;
-		if(velocitybuf[0] > 1500 && velocitybuf[0] < (1500 + deadzone_pulse_width)) velocitybuf[0] = 1500 + deadzone_pulse_width;
+		if(velocitybuf[0] < 0 && velocitybuf[0] > -deadzone_pulse_width) velocitybuf[0] =  -deadzone_pulse_width;
+		if(velocitybuf[0] > 0 && velocitybuf[0] < deadzone_pulse_width) velocitybuf[0] = deadzone_pulse_width;
 
 		//Right velocity is within deadzone
-		if(velocitybuf[1] < 1500 && velocitybuf[1] > (1500 - deadzone_pulse_width)) velocitybuf[1] = 1500 - deadzone_pulse_width;
-		if(velocitybuf[1] > 1500 && velocitybuf[1] < (1500 + deadzone_pulse_width)) velocitybuf[1] = 1500 + deadzone_pulse_width;
+		if(velocitybuf[1] < 0 && velocitybuf[1] > -deadzone_pulse_width) velocitybuf[1] = -deadzone_pulse_width;
+		if(velocitybuf[1] > 0 && velocitybuf[1] < deadzone_pulse_width) velocitybuf[1] = deadzone_pulse_width;
 
 		velocitybuf[2] = 0xFFFB;
 }
