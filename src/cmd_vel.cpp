@@ -19,7 +19,8 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 		ROS_WARN_STREAM("Parameter vel_filter_size not set for serial_communication. Using default setting: " << vel_filter_size_);
 	if (!node_handle.getParam("wheel_acc_limit", wheel_acc_limit_))
 		ROS_WARN_STREAM("Parameter wheel_acc_limit not set for serial_communication. Using default setting: " << wheel_acc_limit_);        
-	
+	if (!node_handle.getParam("deadzone_pulse_width", deadzone_pulse_width))
+		ROS_WARN_STREAM("Parameter deadzone_pulse_width not set for serial_communication. Using default setting: " << deadzone_pulse_width);
 	return true;
 }
 
@@ -53,8 +54,13 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 		velocitybuf[0] = v_left_cmd / VelocityMax * 500 + 130; // Convert to MCU velocity range: sends pwm signals at 1500, +/- 500
 		velocitybuf[1] = v_right_cmd / VelocityMax * 500 + 130;
 
-		if(velocitybuf[0] > 2000) velocitybuf[0] = 2000;
-		if(velocitybuf[1] > 2000) velocitybuf[1] = 2000;
+		//Left velocity is within deadzone
+		if(velocitybuf[0] < 1500 && velocitybuf[0] > (1500 - deadzone_pulse_width))) velocitybuf[0] = 1500 - deadzone_pulse_width;
+		if(velocitybuf[0] > 1500 && velocitybuf[0] < (1500 + deadzone_pulse_width))) velocitybuf[0] = 1500 + deadzone_pulse_width;
+
+		//Right velocity is within deadzone
+		if(velocitybuf[1] < 1500 && velocitybuf[1] > (1500 - deadzone_pulse_width))) velocitybuf[1] = 1500 - deadzone_pulse_width;
+		if(velocitybuf[1] > 1500 && velocitybuf[1] < (1500 + deadzone_pulse_width))) velocitybuf[1] = 1500 + deadzone_pulse_width;
 
 		velocitybuf[2] = 0xFFFB;
 }

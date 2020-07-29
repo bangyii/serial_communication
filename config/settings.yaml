@@ -7,6 +7,9 @@ odom_update_method: "odom"
 wheel_acc_limit: 10.0
 vel_filter_size: 5
 
+#motor deadzone size, unit is pulse width, if set to 500, motor will run at full speed always
+deadzone_pulse_width: 100
+
 ## calibration parameters odometry
 calibration_v_angular: 1.0 #0.88
 calibration_v_linear: 0.92 #0.92
