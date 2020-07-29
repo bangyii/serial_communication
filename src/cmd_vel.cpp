@@ -51,16 +51,16 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 		}
 
 		//Account for motor deadzone
-		velocitybuf[0] = v_left_cmd / VelocityMax * 500 + 130; // Convert to MCU velocity range: sends pwm signals at 1500, +/- 500
-		velocitybuf[1] = v_right_cmd / VelocityMax * 500 + 130;
+		velocitybuf[0] = v_left_cmd / VelocityMax * 500; // Convert to MCU velocity range: sends pwm signals at 1500, +/- 500
+		velocitybuf[1] = v_right_cmd / VelocityMax * 500;
 
 		//Left velocity is within deadzone
-		if(velocitybuf[0] < 1500 && velocitybuf[0] > (1500 - deadzone_pulse_width))) velocitybuf[0] = 1500 - deadzone_pulse_width;
-		if(velocitybuf[0] > 1500 && velocitybuf[0] < (1500 + deadzone_pulse_width))) velocitybuf[0] = 1500 + deadzone_pulse_width;
+		if(velocitybuf[0] < 1500 && velocitybuf[0] > (1500 - deadzone_pulse_width)) velocitybuf[0] = 1500 - deadzone_pulse_width;
+		if(velocitybuf[0] > 1500 && velocitybuf[0] < (1500 + deadzone_pulse_width)) velocitybuf[0] = 1500 + deadzone_pulse_width;
 
 		//Right velocity is within deadzone
-		if(velocitybuf[1] < 1500 && velocitybuf[1] > (1500 - deadzone_pulse_width))) velocitybuf[1] = 1500 - deadzone_pulse_width;
-		if(velocitybuf[1] > 1500 && velocitybuf[1] < (1500 + deadzone_pulse_width))) velocitybuf[1] = 1500 + deadzone_pulse_width;
+		if(velocitybuf[1] < 1500 && velocitybuf[1] > (1500 - deadzone_pulse_width)) velocitybuf[1] = 1500 - deadzone_pulse_width;
+		if(velocitybuf[1] > 1500 && velocitybuf[1] < (1500 + deadzone_pulse_width)) velocitybuf[1] = 1500 + deadzone_pulse_width;
 
 		velocitybuf[2] = 0xFFFB;
 }
