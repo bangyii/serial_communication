@@ -45,12 +45,17 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 		}
 		else
 		{
-			v_left_cmd = cmd_vel.linear.x * calibration_cmd_lin_ - cmd_vel.angular.z * (base_width / 4) * calibration_cmd_ang_;
-			v_right_cmd = cmd_vel.linear.x * calibration_cmd_lin_ + cmd_vel.angular.z * (base_width / 4) * calibration_cmd_ang_;
+			v_left_cmd = cmd_vel.linear.x * calibration_cmd_lin_ - cmd_vel.angular.z * (base_width ) * calibration_cmd_ang_;
+			v_right_cmd = cmd_vel.linear.x * calibration_cmd_lin_ + cmd_vel.angular.z * (base_width ) * calibration_cmd_ang_;
 		}
 
-		velocitybuf[0] = v_left_cmd / VelocityMax * 500; // Convert to MCU velocity range: sends pwm signals at 1500, +/- 500
-		velocitybuf[1] = v_right_cmd / VelocityMax * 500;
+		//Account for motor deadzone
+		velocitybuf[0] = v_left_cmd / VelocityMax * 500 + 130; // Convert to MCU velocity range: sends pwm signals at 1500, +/- 500
+		velocitybuf[1] = v_right_cmd / VelocityMax * 500 + 130;
+
+		if(velocitybuf[0] > 2000) velocitybuf[0] = 2000;
+		if(velocitybuf[1] > 2000) velocitybuf[1] = 2000;
+
 		velocitybuf[2] = 0xFFFB;
 }
 

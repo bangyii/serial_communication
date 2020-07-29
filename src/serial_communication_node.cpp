@@ -133,6 +133,8 @@ int main(int argc, char **argv)
 		//velocity_raw = {v_left, v_right}
 		std::vector<float> velocity_raw = cmdVel.getVelFromEncoder(std::vector<float>(buf + 2, buf + 4));
 
+//		ROS_INFO("Left encoder: %d \t Right encoder: %d", buf[3], buf[2]);
+
 		//currentOdom = {x_odom, y_odom, theta}
 		std::vector<float> currentOdom = odom.getOdom(velocity_raw);
 
@@ -174,12 +176,12 @@ int main(int argc, char **argv)
 		odom2d_pub.publish(rosmsg::makePose2D(currentOdom[0], currentOdom[1], currentOdom[2]));
 
 		// Publish Odometry message
-		odom_pub.publish(rosmsg::makeOdometry(rosmsg::makeHeader("odom", ros::Time::now()),
+		odom_pub.publish(rosmsg::makeOdometry(rosmsg::makeHeader("odom", ros::Time::now()), "base_link",
 											  currentOdom[0], currentOdom[1], currentOdom[2], velocity[0], velocity[1],
 											  CovOdom, CovVel));
 
 		// Publish IMU data
-		acceleration_pub.publish(rosmsg::makeIMU(rosmsg::makeHeader("base_footprint", ros::Time::now()),
+		acceleration_pub.publish(rosmsg::makeIMU(rosmsg::makeHeader("base_link", ros::Time::now()),
 												0,0,0,
 												imuReadings[3],imuReadings[4],imuReadings[5],
 												imuReadings[0],imuReadings[1],imuReadings[2],
@@ -193,7 +195,7 @@ int main(int argc, char **argv)
 			odom_broadcaster.sendTransform(
 				tf::StampedTransform(
 					tf::Transform(odom_quat, tf::Vector3(currentOdom[0], currentOdom[1], 0.0)),
-					ros::Time::now(), "odom", "base_footprint"));
+					ros::Time::now(), "odom", "base_link"));
 		}
 	}
 	serial.runIOService();
