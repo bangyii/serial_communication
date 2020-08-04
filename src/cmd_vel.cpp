@@ -46,8 +46,8 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 		}
 		else
 		{
-			v_left_cmd = cmd_vel.linear.x * calibration_cmd_lin_ - cmd_vel.angular.z * (base_width ) * calibration_cmd_ang_;
-			v_right_cmd = cmd_vel.linear.x * calibration_cmd_lin_ + cmd_vel.angular.z * (base_width ) * calibration_cmd_ang_;
+			v_left_cmd = cmd_vel.linear.x * calibration_cmd_lin_ - cmd_vel.angular.z * (base_width / 2) * calibration_cmd_ang_;
+			v_right_cmd = cmd_vel.linear.x * calibration_cmd_lin_ + cmd_vel.angular.z * (base_width / 2) * calibration_cmd_ang_;
 		}
 
 		//Account for motor deadzone
@@ -96,8 +96,12 @@ std::vector<float> CmdVel::getVelFromEncoder(std::vector<float> encoder)
     encoder_right = encoder[0]; // encoder2 is right
 
     //Get difference in encoder
-    float diff_enc_left = encoder_left - encoder_left_prev;
-    float diff_enc_right = encoder_right - encoder_right_prev;
+	float diff_enc_left = 0;
+	float diff_enc_right = 0;
+	if(encoder_left_prev != -1 && encoder_right_prev != -1){
+    diff_enc_left = encoder_left - encoder_left_prev;
+    diff_enc_right = encoder_right - encoder_right_prev;
+	}
 
 	//Get difference in time
 	float dt = (std::chrono::system_clock::now() - time_prev).count() / 1000000000.0;

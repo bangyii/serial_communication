@@ -39,7 +39,7 @@ private:
     ros::Time timestamp;
     std::deque<float> buffer_x;
     std::deque<float> buffer_y;
-    float encoder_left, encoder_right, encoder_left_prev, encoder_right_prev;
+    float encoder_left, encoder_right, encoder_left_prev = -1, encoder_right_prev = -1;
     std::chrono::time_point<std::chrono::system_clock> time_prev = std::chrono::system_clock::now();
 };
 

@@ -133,8 +133,6 @@ int main(int argc, char **argv)
 		//velocity_raw = {v_left, v_right}
 		std::vector<float> velocity_raw = cmdVel.getVelFromEncoder(std::vector<float>(buf + 2, buf + 4));
 
-//		ROS_INFO("Left encoder: %d \t Right encoder: %d", buf[3], buf[2]);
-
 		//currentOdom = {x_odom, y_odom, theta}
 		std::vector<float> currentOdom = odom.getOdom(velocity_raw);
 

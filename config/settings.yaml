@@ -1,5 +1,5 @@
 ### Settings serial communication node
-usb_port: "/dev/ttyUSB2"
+usb_port: "/dev/ttyUSB0"
 publish_odom_tf: false
 apply_vel_filter: true
 odom_update_method: "odom"
@@ -13,8 +13,8 @@ deadzone_pulse_width: 100
 ## calibration parameters odometry
 calibration_v_angular: 1.0 #0.88
 calibration_v_linear: 0.92 #0.92
-calibration_cmd_ang: 0.46
-calibration_cmd_lin: 0.7
+calibration_cmd_ang: 1.0 #0.42
+calibration_cmd_lin: 1.7 #0.7
 
 ## calibration parameters imu
 bias_acc_x: 0.035
