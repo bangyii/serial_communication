@@ -48,6 +48,12 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 		{
 			v_left_cmd = cmd_vel.linear.x * calibration_cmd_lin_ - cmd_vel.angular.z * (base_width / 2) * calibration_cmd_ang_;
 			v_right_cmd = cmd_vel.linear.x * calibration_cmd_lin_ + cmd_vel.angular.z * (base_width / 2) * calibration_cmd_ang_;
+			
+			//Nonlinear scaling of commanded velocity using experimental data. Required because if for example 0.1m/s is commanded,
+			//wheelchair will move at approximately 0.0x speed. Therefore, higher command is required to reach the actual required
+			//speed of 0.1m/s
+			v_left_cmd = 0.122 * pow(v_left_cmd, -1.7);
+			v_right_cmd = 0.122 * pow(v_right_cmd, -1.7);
 		}
 
 		//Account for motor deadzone
@@ -122,8 +128,7 @@ std::vector<float> CmdVel::getVelFromEncoder(std::vector<float> encoder)
 
     v_right = f_right / ENCODERCIR * M_PI * wheel_diameter / dt;
     v_left = -f_left / ENCODERCIR * M_PI * wheel_diameter / dt;
-//	ROS_INFO("%f\t%f\t%f\t%f", f_right, f_right/ENCODERCIR, f_right/ENCODERCIR * M_PI, wheel_diameter / dt);
-//	ROS_INFO("Time difference: %f \t vleft: %f \t vright: %f", dt, v_left, v_right);
+
     // Sometimes data gets lost and spikes are seen in the velocity readouts.
     // This is solved by limiting the max difference between subsequent velocity readouts.
     // If acceleration is passed, just update velocity within acceleration limits

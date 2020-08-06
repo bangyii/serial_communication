@@ -29,7 +29,7 @@ public:
 	//float VelocityMax = 0.45 * 126 / 60 * wheel_diameter * M_PI; // converts from m/s to pwm pulses per second
 	float VelocityMax = 1.125; //m/s
     float deadzone_pulse_width = 0;
-	float max_dt_cmd = 1.0;
+	float max_dt_cmd = 0.5;
     float f_right, f_left, v_right, v_left, v_right_prev, v_left_prev, v_right_cmd, v_left_cmd;
     bool apply_vel_filter_ = true;
     int vel_filter_size_ = 5;
