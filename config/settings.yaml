@@ -8,13 +8,13 @@ wheel_acc_limit: 10.0
 vel_filter_size: 5
 
 #motor deadzone size, unit is pulse width, if set to 500, motor will run at full speed always
-deadzone_pulse_width: 100
+deadzone_pulse_width: 0
 
 ## calibration parameters odometry
 calibration_v_angular: 1.0 #0.88
-calibration_v_linear: 0.92 #0.92
+calibration_v_linear: 1.0 #0.92
 calibration_cmd_ang: 1.0 #0.42
-calibration_cmd_lin: 1.7 #0.7
+calibration_cmd_lin: 1.0 #0.7
 
 ## calibration parameters imu
 bias_acc_x: 0.035
