@@ -48,12 +48,21 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 		{
 			v_left_cmd = cmd_vel.linear.x * calibration_cmd_lin_ - cmd_vel.angular.z * (base_width / 2) * calibration_cmd_ang_;
 			v_right_cmd = cmd_vel.linear.x * calibration_cmd_lin_ + cmd_vel.angular.z * (base_width / 2) * calibration_cmd_ang_;
-			
+
 			//Nonlinear scaling of commanded velocity using experimental data. Required because if for example 0.1m/s is commanded,
 			//wheelchair will move at approximately 0.0x speed. Therefore, higher command is required to reach the actual required
 			//speed of 0.1m/s
-			v_left_cmd = 0.122 * pow(v_left_cmd, -1.7);
-			v_right_cmd = 0.122 * pow(v_right_cmd, -1.7);
+			if(fabs(v_left_cmd) > 0.05){
+				float scale = 0.122 * pow(v_left_cmd, -1.7) * (v_left_cmd / fabs(v_left_cmd));
+				if(std::isnan(scale) || scale < 1.0) scale = 1.0;
+				v_left_cmd *= scale;
+			}
+
+			if(fabs(v_right_cmd) > 0.05){
+                                float scale = 0.122 * pow(v_right_cmd, -1.7) * (v_right_cmd / fabs(v_right_cmd));
+                                if(std::isnan(scale) || scale < 1.0) scale = 1.0;
+				v_right_cmd *= scale;
+			}
 		}
 
 		//Account for motor deadzone
