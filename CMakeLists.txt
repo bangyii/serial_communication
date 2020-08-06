@@ -211,10 +211,10 @@ include_directories(
 # catkin_add_nosetests(test)
 
 add_library(serial_communication src/serial_communication.cpp)
-add_library(cmd_vel src/cmd_vel.cpp)
 add_library(odom src/odom.cpp)
 add_library(MiniPID src/MiniPID.cpp)
-
+add_library(cmd_vel src/cmd_vel.cpp)
+target_link_libraries(cmd_vel MiniPID)
 
 
 add_executable(${PROJECT_NAME}_node src/serial_communication_node.cpp)

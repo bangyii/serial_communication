@@ -20,6 +20,20 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 		ROS_WARN_STREAM("Parameter wheel_acc_limit not set for serial_communication. Using default setting: " << wheel_acc_limit_);
 	if (!node_handle.getParam("deadzone_pulse_width", deadzone_pulse_width))
 		ROS_WARN_STREAM("Parameter deadzone_pulse_width not set for serial_communication. Using default setting: " << deadzone_pulse_width);
+	if (!node_handle.getParam("motor_kp", motor_kp))
+		ROS_WARN_STREAM("Parameter motor_kp not set for serial_communication. Using default setting: " << motor_kp);
+	if (!node_handle.getParam("motor_ki", motor_ki))
+		ROS_WARN_STREAM("Parameter motor_ki not set for serial_communication. Using default setting: " << motor_ki);
+	if (!node_handle.getParam("motor_kd", motor_kd))
+		ROS_WARN_STREAM("Parameter motor_kd not set for serial_communication. Using default setting: " << motor_kd);
+
+	//Setup PID
+	left_motor_pid.setPID(motor_kp, motor_ki, motor_kd);
+	left_motor_pid.setMaxIOutput(500.0);
+	left_motor_pid.setOutputLimits(-500.0, 500.0);
+	right_motor_pid.setPID(motor_kp, motor_ki, motor_kd);
+	right_motor_pid.setMaxIOutput(500.0);
+	right_motor_pid.setOutputLimits(-500.0, 500.0);
 	return true;
 }
 
@@ -67,6 +81,11 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 		// 	v_right_cmd *= scale;
 		// }
 	}
+
+	//PID for motor controls, getOutput(current reading, target)
+	float left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
+	float right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
+	ROS_INFO("PID output left: %f \t right: %f", left_pid_out, right_pid_out);
 
 	//Account for motor deadzone
 	velocitybuf[0] = v_left_cmd / VelocityMax * 500; // Convert to MCU velocity range: sends pwm signals at 1500, +/- 500

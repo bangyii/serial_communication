@@ -6,6 +6,7 @@
 #include <vector>
 #include <deque>
 #include <chrono>
+#include "serial_communication/MiniPID.h"
 
 class CmdVel
 {
@@ -17,6 +18,10 @@ public:
     void medianFilter(float &x, float &y);
     bool readParameters(ros::NodeHandle &node_handle);
     std::vector<float> getVelFromEncoder(std::vector<float> encoder);
+
+    //Motor pid
+    float motor_kp = 1, motor_ki = 0, motor_kd = 0;
+    MiniPID left_motor_pid, right_motor_pid;
 
     //Parameters
     ros::Time time_last_cmd;
