@@ -61,34 +61,18 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 	{
 		v_left_cmd = cmd_vel.linear.x * calibration_cmd_lin_ - cmd_vel.angular.z * (base_width / 2) * calibration_cmd_ang_;
 		v_right_cmd = cmd_vel.linear.x * calibration_cmd_lin_ + cmd_vel.angular.z * (base_width / 2) * calibration_cmd_ang_;
-
-		//Nonlinear scaling of commanded velocity using experimental data. Required because if for example 0.1m/s is commanded,
-		//wheelchair will move at approximately 0.0x speed. Therefore, higher command is required to reach the actual required
-		//speed of 0.1m/s
-		// if (fabs(v_left_cmd) > 0.05)
-		// {
-		// 	float scale = 0.122 * pow(v_left_cmd, -1.7) * (v_left_cmd / fabs(v_left_cmd));
-		// 	if (std::isnan(scale) || scale < 1.0)
-		// 		scale = 1.0;
-		// 	v_left_cmd *= scale;
-		// }
-
-		// if (fabs(v_right_cmd) > 0.05)
-		// {
-		// 	float scale = 0.122 * pow(v_right_cmd, -1.7) * (v_right_cmd / fabs(v_right_cmd));
-		// 	if (std::isnan(scale) || scale < 1.0)
-		// 		scale = 1.0;
-		// 	v_right_cmd *= scale;
-		// }
 	}
 
 	//PID for motor controls, getOutput(current reading, target)
 	//Reset when 0 commanded or when change of direction
-	if(v_left_cmd == 0 || v_left_cmd * v_left < 0) left_motor_pid.reset();
-	if(v_right_cmd ==0 || v_right_cmd * v_right < 0) right_motor_pid.reset();
+	if (v_left_cmd == 0 || v_left_cmd * v_left < 0)
+		left_motor_pid.reset();
+	if (v_right_cmd == 0 || v_right_cmd * v_right < 0)
+		right_motor_pid.reset();
+
 	float left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
 	float right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
-	ROS_INFO("Post PID output left: %f \t right: %f", left_pid_out + v_left_cmd, right_pid_out + v_right_cmd);
+	ROS_DEBUG("Post PID output left: %f \t right: %f", left_pid_out + v_left_cmd, right_pid_out + v_right_cmd);
 
 	//Account for motor deadzone
 	//velocitybuf[0] = v_left_cmd / VelocityMax * 500; // Convert to MCU velocity range: sends pwm signals at 1500, +/- 500

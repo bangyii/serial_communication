@@ -5,40 +5,38 @@
 #include <scat_libs/base_utils.h>
 #include <exception>
 
-#include <sensor_msgs/Imu.h>			// ROS message used for linear and angular accelerations
+#include <sensor_msgs/Imu.h> // ROS message used for linear and angular accelerations
 #include <tf/tf.h>
 #include <tf/transform_broadcaster.h>
 #include <std_msgs/Float32MultiArray.h> // ROS message used for joystick data
-#include <boost/asio.hpp> // Include boost library function
+#include <boost/asio.hpp>				// Include boost library function
 #include <chrono>
 
 // IMU covariance matrices, measured using rosbag during experiment while driving around and calculated using numpy. 0 entry means negligible.
-std::vector<double> CovOrient = {-1, -1, -1, // Orientation not given by IMU, set Covariance to -1 and estimates to 0. 
-								-1, -1, -1,
-								-1, -1, -1};
+std::vector<double> CovOrient = {-1, -1, -1, // Orientation not given by IMU, set Covariance to -1 and estimates to 0.
+								 -1, -1, -1,
+								 -1, -1, -1};
 // std::vector<double> CovOrient = {1, 0, 0,
 // 								0, 1, 0,
-// 								0, 0, 1};								
+// 								0, 0, 1};
 std::vector<double> CovGyro = {0.002, 0, 0,
-								0, 0.002, 0,
-								0, 0, 0.002};
+							   0, 0.002, 0,
+							   0, 0, 0.002};
 std::vector<double> CovAcc = {0.002, 0, 0,
-								0, 0.002, 0,
-								0, 0, 0.34};
-std::vector<double> CovOdom = {0.2, 0, 0, 0, 0, 0, 
-								0, 0.2, 0, 0, 0, 0, 
-								0, 0, 0.01, 0, 0, 0,
-								0, 0, 0, 0.01, 0, 0,
-								0, 0, 0, 0, 0.01, 0,
-								0, 0, 0, 0, 0, 0.4};
-std::vector<double> CovVel = {0.1, 0, 0, 0, 0, 0, 
-								0, 0.01, 0, 0, 0, 0, 
-								0, 0, 0.01, 0, 0, 0,
-								0, 0, 0, 0.01, 0, 0,
-								0, 0, 0, 0, 0.01, 0,
-								0, 0, 0, 0, 0, 0.1};
-
-
+							  0, 0.002, 0,
+							  0, 0, 0.34};
+std::vector<double> CovOdom = {0.2, 0, 0, 0, 0, 0,
+							   0, 0.2, 0, 0, 0, 0,
+							   0, 0, 0.01, 0, 0, 0,
+							   0, 0, 0, 0.01, 0, 0,
+							   0, 0, 0, 0, 0.01, 0,
+							   0, 0, 0, 0, 0, 0.4};
+std::vector<double> CovVel = {0.1, 0, 0, 0, 0, 0,
+							  0, 0.01, 0, 0, 0, 0,
+							  0, 0, 0.01, 0, 0, 0,
+							  0, 0, 0, 0.01, 0, 0,
+							  0, 0, 0, 0, 0.01, 0,
+							  0, 0, 0, 0, 0, 0.1};
 
 int main(int argc, char **argv)
 {
@@ -81,12 +79,13 @@ int main(int argc, char **argv)
 	// std::vector<float> x_data(Period_Count);
 	// std::vector<float> y_data(Period_Count);
 
-	//TODO: unnecessary duplicate of variable 
+	//TODO: unnecessary duplicate of variable
 	odom.base_width = cmdVel.base_width = 0.5;
 
 	// Set up
 	boost::asio::serial_port sp = serial.setupPort();
-	if(!sp.is_open()){
+	if (!sp.is_open())
+	{
 		ROS_ERROR("Unable to open serial port, shutting down");
 		ros::shutdown();
 	}
@@ -100,19 +99,20 @@ int main(int argc, char **argv)
 		// ROS_INFO_STREAM("cnt: " << (cnt++) / 200.0 ) ;
 
 		static uint8_t buf_temp[22];
-		try{
-		//Get cmd_vel from topic and then write to MCU
-		cmdVel.getCmdVel(velocitybuf);
-		write(sp, boost::asio::buffer(velocitybuf)); 
+		try
+		{
+			//Get cmd_vel from topic and then write to MCU
+			cmdVel.getCmdVel(velocitybuf);
+			write(sp, boost::asio::buffer(velocitybuf));
 
-
-		//Read data from MCU and place into temp buffer
-		read(sp, boost::asio::buffer(buf_temp)); // block
+			//Read data from MCU and place into temp buffer
+			read(sp, boost::asio::buffer(buf_temp)); // block
 		}
 
-		catch(const std::exception& e){
-		ROS_WARN("Error: %s", e.what());
-		break;
+		catch (const std::exception &e)
+		{
+			ROS_WARN("Error: %s", e.what());
+			break;
 		}
 		//Decode bytes received from MCU
 		for (uint8_t i = 0; i < 11; i++)
@@ -129,8 +129,8 @@ int main(int argc, char **argv)
 		}
 
 		// Implicit conversion from uint16 to float
-		JoystickValue[0] = -(buf[1] / 2048.0 - 1.0)/0.7;
-		JoystickValue[1] = -(buf[0] / 2048.0 - 1.0)/0.7;
+		JoystickValue[0] = -(buf[1] / 2048.0 - 1.0) / 0.7;
+		JoystickValue[1] = -(buf[0] / 2048.0 - 1.0) / 0.7;
 
 		//Get acc and gyro from buffer
 		//imuReadings = {ax, ay, az, gx, gy, gz}
@@ -142,7 +142,6 @@ int main(int argc, char **argv)
 
 		//currentOdom = {x_odom, y_odom, theta}
 		std::vector<float> currentOdom = odom.getOdom(velocity_raw);
-
 
 		// if(count>=Period_Count){
 		// 	mean_x=mean_y=variance_x=variance_y=0.;
@@ -187,10 +186,10 @@ int main(int argc, char **argv)
 
 		// Publish IMU data
 		acceleration_pub.publish(rosmsg::makeIMU(rosmsg::makeHeader("base_link", ros::Time::now()),
-												0,0,0,
-												imuReadings[3],imuReadings[4],imuReadings[5],
-												imuReadings[0],imuReadings[1],imuReadings[2],
-												CovOrient,CovGyro,CovAcc));
+												 0, 0, 0,
+												 imuReadings[3], imuReadings[4], imuReadings[5],
+												 imuReadings[0], imuReadings[1], imuReadings[2],
+												 CovOrient, CovGyro, CovAcc));
 
 		// Send Odom transform (ONLY IF NO OTHER ODOM PUBLISHER ACTIVE!!)
 		// (e.g. laser_scan_matcher or robot_pose_ekf)
@@ -207,7 +206,7 @@ int main(int argc, char **argv)
 	ROS_INFO("Shutting down serial comms node, write 0.0 to motor");
 	velocitybuf[0] = 0.0;
 	velocitybuf[1] = 0.0;
-        write(sp, boost::asio::buffer(velocitybuf));
+	write(sp, boost::asio::buffer(velocitybuf));
 	serial.runIOService();
 	return 0;
 }
