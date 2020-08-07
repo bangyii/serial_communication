@@ -1,7 +1,9 @@
 #ifndef MINIPID_H
 #define MINIPID_H
+#include <chrono>
 
-class MiniPID{
+class MiniPID
+{
 public:
 	MiniPID();
 	MiniPID(double, double, double);
@@ -14,7 +16,7 @@ public:
 	void setPID(double, double, double, double);
 	void setMaxIOutput(double);
 	void setOutputLimits(double);
-	void setOutputLimits(double,double);
+	void setOutputLimits(double, double);
 	void setDirection(bool);
 	void setSetpoint(double);
 	void reset();
@@ -38,8 +40,9 @@ private:
 	double maxIOutput;
 	double maxError;
 	double errorSum;
+	double prevError;
 
-	double maxOutput; 
+	double maxOutput;
 	double minOutput;
 
 	double setpoint;
@@ -55,5 +58,7 @@ private:
 	double outputFilter;
 
 	double setpointRange;
+
+	std::chrono::time_point<std::chrono::system_clock> prev_time;
 };
 #endif
