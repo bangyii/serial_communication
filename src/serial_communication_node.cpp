@@ -3,6 +3,7 @@
 #include <serial_communication/cmd_vel.h>
 #include <scat_libs/rosmsg.h>
 #include <scat_libs/base_utils.h>
+#include <exception>
 
 #include <sensor_msgs/Imu.h>			// ROS message used for linear and angular accelerations
 #include <tf/tf.h>
@@ -98,15 +99,21 @@ int main(int argc, char **argv)
 		// static uint32_t cnt = 0;
 		// ROS_INFO_STREAM("cnt: " << (cnt++) / 200.0 ) ;
 
+		static uint8_t buf_temp[22];
+		try{
 		//Get cmd_vel from topic and then write to MCU
 		cmdVel.getCmdVel(velocitybuf);
 		write(sp, boost::asio::buffer(velocitybuf)); 
 
 
 		//Read data from MCU and place into temp buffer
-		static uint8_t buf_temp[22];
 		read(sp, boost::asio::buffer(buf_temp)); // block
+		}
 
+		catch(const std::exception& e){
+		ROS_WARN("Error: %s", e.what());
+		break;
+		}
 		//Decode bytes received from MCU
 		for (uint8_t i = 0; i < 11; i++)
 		{
@@ -196,6 +203,11 @@ int main(int argc, char **argv)
 					ros::Time::now(), "odom", "base_link"));
 		}
 	}
+
+	ROS_INFO("Shutting down serial comms node, write 0.0 to motor");
+	velocitybuf[0] = 0.0;
+	velocitybuf[1] = 0.0;
+        write(sp, boost::asio::buffer(velocitybuf));
 	serial.runIOService();
 	return 0;
 }

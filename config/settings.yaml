@@ -1,5 +1,5 @@
 ### Settings serial communication node
-usb_port: "/dev/ttyUSB2"
+usb_port: "/dev/ttyUSB0"
 publish_odom_tf: false
 apply_vel_filter: true
 odom_update_method: "odom"
@@ -9,6 +9,9 @@ vel_filter_size: 10
 
 #motor deadzone size, unit is pulse width, if set to 500, motor will run at full speed always
 deadzone_pulse_width: 0
+motor_kp: 0.35
+motor_ki: 0.028
+motor_kd: 0.001
 
 ## calibration parameters odometry
 calibration_v_angular: 1.0 #0.88
