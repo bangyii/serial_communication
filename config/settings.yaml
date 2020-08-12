@@ -16,10 +16,10 @@ deadzone_pulse_width: 0
 
 #With person
 motor_kp: 0.0
-motor_ki: 0.3
+motor_ki: 1.5
 motor_kd: 0.0
 motor_f: 0.0
-
+frequency: 15.0
 ## calibration parameters odometry
 calibration_v_angular: 1.0 #0.88
 calibration_v_linear: 1.0 #0.92

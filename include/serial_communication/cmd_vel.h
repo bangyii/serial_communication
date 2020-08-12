@@ -36,6 +36,7 @@ public:
     float deadzone_pulse_width = 0;
 	float max_dt_cmd = 0.5;
     float f_right, f_left, v_right, v_left, v_right_prev, v_left_prev, v_right_cmd, v_left_cmd;
+    float v_left_cmd_prev, v_right_cmd_prev;
     bool apply_vel_filter_ = true;
     int vel_filter_size_ = 5;
     float wheel_acc_limit_ = 10.0;

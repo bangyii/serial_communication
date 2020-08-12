@@ -50,6 +50,7 @@ private:
 	double minOutput;
 
 	double setpoint;
+	double prevOutput;
 
 	double lastActual;
 

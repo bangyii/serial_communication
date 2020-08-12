@@ -49,6 +49,7 @@ void MiniPID::init()
 	maxOutput = 0;
 	minOutput = 0;
 	setpoint = 0;
+	prevOutput = 0;
 	lastActual = 0;
 	firstRun = true;
 	reversed = false;
@@ -251,11 +252,12 @@ double MiniPID::getOutput(double actual, double setpoint)
 		prevError = error;
 		lastOutput = Poutput + Foutput;
 		prev_time = std::chrono::system_clock::now();
+		prevOutput = 0;
 		firstRun = false;
 	}
 
 	//Only run cycle when time passed is greater than 1/Hz
-	if((std::chrono::system_clock::now() - prev_time).count()/1000000000.0 < 1/frequency) return output;
+	if((std::chrono::system_clock::now() - prev_time).count()/1000000000.0 < 1/frequency) return prevOutput;
 
 	//Ramp the setpoint used for calculations if user has opted to do so
 	if (setpointRange != 0)
@@ -270,7 +272,7 @@ double MiniPID::getOutput(double actual, double setpoint)
 	Poutput = P * error;
 
 	//Get time difference since last run
-	float dt = (prev_time - std::chrono::system_clock::now()).count() / 1000000000.0;
+	float dt = (std::chrono::system_clock::now() - prev_time).count() / 1000000000.0;
 
 	//Calculate D Term
 	//If rate of change of error is positive, then the derivative term should be positive to track
@@ -282,17 +284,22 @@ double MiniPID::getOutput(double actual, double setpoint)
 	// 1. maxIoutput restricts the amount of output contributed by the Iterm.
 	// 2. prevent windup by not increasing errorSum if we're already running against our max Ioutput
 	// 3. prevent windup by not increasing errorSum if output is output=maxOutput
+	errorSum += error;
 	Ioutput = I * errorSum * dt;
 
 	//Case 2: Clamp IOutput to max allowed integral output
-	if (maxIOutput != 0)
+	if (maxIOutput != 0 && !bounded(Ioutput, -maxIOutput, maxIOutput))
 	{
+		std::cout << "Clamp integral\t\t\t\t" << std::endl;
 		Ioutput = clamp(Ioutput, -maxIOutput, maxIOutput);
+
+		//Max Ioutput reached, clamp errorSum
+		errorSum -= error;
 	}
 
 	//And, finally, we can just add the terms up
 	output = Foutput + Poutput + Ioutput + Doutput;
-	std::cout << Foutput << "\t" << Poutput << "\t" << Ioutput << "\t" << Doutput << "\t" << errorSum << std::endl;
+	//std::cout << Foutput << "\t" << Poutput << "\t" << Ioutput << "\t" << Doutput << "\t" << errorSum << "\t" << error << std::endl;
 	//If min/max output is set and the current computed output is not within bounds
 	//if (minOutput != maxOutput && !bounded(output, minOutput, maxOutput))
 	//{
@@ -314,7 +321,7 @@ double MiniPID::getOutput(double actual, double setpoint)
 	//}
 	//else
 	//{
-		errorSum += error;
+//		errorSum += error;
 	//}
 
 	//Restrict output to our specified output and ramp limits
@@ -334,6 +341,7 @@ double MiniPID::getOutput(double actual, double setpoint)
 	lastOutput = output;
 	prev_time = std::chrono::system_clock::now();
 	prevError = error;
+	prevOutput = output;
 	return output;
 }
 

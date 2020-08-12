@@ -73,26 +73,21 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 
 	//PID for motor controls, getOutput(current reading, target)
 	//Reset when 0 commanded or when change of direction
-	if (v_left_cmd == 0 || v_left_cmd * v_left < 0 || v_right_cmd == 0 || v_right_cmd * v_right < 0){
+	if (v_left_cmd == 0 || v_left_cmd * v_left_cmd_prev < 0 || v_right_cmd == 0 || v_right_cmd * v_right_cmd_prev < 0){
 		left_motor_pid.reset();
 		right_motor_pid.reset();
 	}
 
-	//if (v_right_cmd == 0 || v_right_cmd * v_right < 0){
-	//	right_motor_pid.reset();
-	//	left_motor_pid.reset();
-	//{
-
 	float left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
 	float right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
-	//ROS_INFO("Post PID output left: %f \t right: %f", left_pid_out, right_pid_out);
-
+	//ROS_INFO("Left error: %f \t Right error: %f", v_left_cmd - v_left, v_right_cmd - v_right);
+	ROS_INFO("Post PID output left: %f \t right: %f", left_pid_out + v_left_cmd, right_pid_out + v_right_cmd);
 	//Account for motor deadzone
 	//velocitybuf[0] = v_left_cmd / VelocityMax * 500; // Convert to MCU velocity range: sends pwm signals at 1500, +/- 500
 	//velocitybuf[1] = v_right_cmd / VelocityMax * 500;
 	velocitybuf[0] = (v_left_cmd + left_pid_out) / VelocityMax * 500;
 	velocitybuf[1] = (v_right_cmd + right_pid_out) / VelocityMax * 500;
-	velocitybuf[0] = 0; velocitybuf[1] = 0;
+	//velocitybuf[0] = 0; velocitybuf[1] = 0;
 	//Left velocity is within deadzone
 	if (velocitybuf[0] < 0 && velocitybuf[0] > -deadzone_pulse_width)
 		velocitybuf[0] = -deadzone_pulse_width;
@@ -106,6 +101,9 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 		velocitybuf[1] = deadzone_pulse_width;
 
 	velocitybuf[2] = 0xFFFB;
+
+	v_left_cmd_prev = v_left_cmd;
+	v_right_cmd_prev = v_right_cmd;
 }
 
 void CmdVel::medianFilter(float &x, float &y)
