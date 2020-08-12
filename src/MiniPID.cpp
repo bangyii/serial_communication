@@ -223,7 +223,6 @@ void MiniPID::setSetpoint(double setpoint)
 	this->setpoint = setpoint;
 }
 
-//TODO: PID does not take into account sampling time
 /** Calculate the PID value needed to hit the target setpoint. 
 * Automatically re-calculates the output at each call. 
 * @param actual The monitored value
@@ -237,6 +236,8 @@ double MiniPID::getOutput(double actual, double setpoint)
 	double Ioutput;
 	double Doutput;
 	double Foutput;
+
+	//Remember old errorSum for use in reverting errorSum if any limits are reached later on
 	double oldErrorSum = errorSum;
 
 	this->setpoint = setpoint;
@@ -292,7 +293,6 @@ double MiniPID::getOutput(double actual, double setpoint)
 	//Case 2: Clamp IOutput to max allowed integral output
 	if (maxIOutput != 0 && !bounded(Ioutput, -maxIOutput, maxIOutput))
 	{
-		std::cout << "Clamp integral\t\t\t\t" << std::endl;
 		Ioutput = clamp(Ioutput, -maxIOutput, maxIOutput);
 
 		//Max Ioutput reached, clamp errorSum
@@ -301,12 +301,10 @@ double MiniPID::getOutput(double actual, double setpoint)
 
 	//And, finally, we can just add the terms up
 	output = Foutput + Poutput + Ioutput + Doutput;
-	//std::cout << Foutput << "\t" << Poutput << "\t" << Ioutput << "\t" << Doutput << "\t" << errorSum << "\t" << error << std::endl;
 
 	//Restrict output to our specified output and ramp limits
 	if (outputRampRate != 0 && !bounded(output, lastOutput - outputRampRate * dt, lastOutput + outputRampRate * dt))
 	{
-		std::cout << "Clamp output rate \t\t" << std::endl;
 		output = clamp(output, lastOutput - outputRampRate * dt, lastOutput + outputRampRate * dt);
 
 		//Prevent errorsum from increasing if ramp rate is already capped
@@ -317,8 +315,8 @@ double MiniPID::getOutput(double actual, double setpoint)
 	{
 		output = clamp(output, minOutput, maxOutput);
 
-                //Prevent errorsum from increasing if max output is already capped
-                errorSum = oldErrorSum;
+		//Prevent errorsum from increasing if max output is already capped
+		errorSum = oldErrorSum;
 	}
 
 	if (outputFilter != 0)
