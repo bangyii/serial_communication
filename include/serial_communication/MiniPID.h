@@ -20,6 +20,7 @@ public:
 	void setDirection(bool);
 	void setSetpoint(double);
 	void setDeadtime(double);
+	void setFreq(double);
 	void reset();
 	void setOutputRampRate(double);
 	void setSetpointRange(double);
@@ -43,6 +44,7 @@ private:
 	double errorSum;
 	double prevError;
 	double deadTime;
+	double frequency;
 
 	double maxOutput;
 	double minOutput;

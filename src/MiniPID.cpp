@@ -57,6 +57,7 @@ void MiniPID::init()
 	outputFilter = 0;
 	setpointRange = 0;
 	deadTime = 0;
+	frequency = 5.0;
 }
 
 //**********************************
@@ -81,6 +82,11 @@ void MiniPID::setP(double p)
 void MiniPID::setDeadtime(double val)
 {
 	deadTime = val;
+}
+
+void MiniPID::setFreq(double val)
+{
+	frequency = val;
 }
 
 /**
@@ -233,20 +239,8 @@ double MiniPID::getOutput(double actual, double setpoint)
 
 	this->setpoint = setpoint;
 
-	//Ramp the setpoint used for calculations if user has opted to do so
-	if (setpointRange != 0)
-	{
-		setpoint = clamp(setpoint, actual - setpointRange, actual + setpointRange);
-	}
-
 	//Do the simple parts of the calculations
 	double error = setpoint - actual;
-
-	//Calculate F output. Notice, this depends only on the setpoint, and not the error.
-	Foutput = F * setpoint;
-
-	//Calculate P term
-	Poutput = P * error;
 
 	//If this is our first time running this  we don't actually _have_ a previous input or output.
 	//For sensor, sanely assume it was exactly where it is now.
@@ -259,6 +253,21 @@ double MiniPID::getOutput(double actual, double setpoint)
 		prev_time = std::chrono::system_clock::now();
 		firstRun = false;
 	}
+
+	//Only run cycle when time passed is greater than 1/Hz
+	if((std::chrono::system_clock::now() - prev_time).count()/1000000000.0 < 1/frequency) return output;
+
+	//Ramp the setpoint used for calculations if user has opted to do so
+	if (setpointRange != 0)
+	{
+		setpoint = clamp(setpoint, actual - setpointRange, actual + setpointRange);
+	}
+
+	//Calculate F output. Notice, this depends only on the setpoint, and not the error.
+	Foutput = F * setpoint;
+
+	//Calculate P term
+	Poutput = P * error;
 
 	//Get time difference since last run
 	float dt = (prev_time - std::chrono::system_clock::now()).count() / 1000000000.0;

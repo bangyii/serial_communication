@@ -28,15 +28,20 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 		ROS_WARN_STREAM("Parameter motor_kd not set for serial_communication. Using default setting: " << motor_kd);
 	if (!node_handle.getParam("motor_f", motor_f))
 		ROS_WARN_STREAM("Parameter motor_f not set for serial_communication. Using default setting: " << motor_f);
+	if (!node_handle.getParam("frequency", frequency))
+		ROS_WARN_STREAM("Parameter frequency not set for serial_communication. Using default setting: " << frequency);
+
 	//Setup PID
 	left_motor_pid.setPID(motor_kp, motor_ki, motor_kd);
 	left_motor_pid.setMaxIOutput(VelocityMax);
 	left_motor_pid.setOutputLimits(-VelocityMax, VelocityMax);
 	left_motor_pid.setF(motor_f);
+	left_motor_pid.setFreq(frequency);
 	right_motor_pid.setPID(motor_kp, motor_ki, motor_kd);
 	right_motor_pid.setMaxIOutput(VelocityMax);
 	right_motor_pid.setOutputLimits(-VelocityMax, VelocityMax);
 	right_motor_pid.setF(motor_f);
+	right_motor_pid.setFreq(frequency);
 	return true;
 }
 
