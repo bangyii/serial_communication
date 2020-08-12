@@ -257,7 +257,8 @@ double MiniPID::getOutput(double actual, double setpoint)
 	}
 
 	//Only run cycle when time passed is greater than 1/Hz
-	if((std::chrono::system_clock::now() - prev_time).count()/1000000000.0 < 1/frequency) return prevOutput;
+	if ((std::chrono::system_clock::now() - prev_time).count() / 1000000000.0 < 1 / frequency)
+		return prevOutput;
 
 	//Ramp the setpoint used for calculations if user has opted to do so
 	if (setpointRange != 0)
@@ -300,29 +301,6 @@ double MiniPID::getOutput(double actual, double setpoint)
 	//And, finally, we can just add the terms up
 	output = Foutput + Poutput + Ioutput + Doutput;
 	//std::cout << Foutput << "\t" << Poutput << "\t" << Ioutput << "\t" << Doutput << "\t" << errorSum << "\t" << error << std::endl;
-	//If min/max output is set and the current computed output is not within bounds
-	//if (minOutput != maxOutput && !bounded(output, minOutput, maxOutput))
-	//{
-	//	errorSum = error;
-		// reset the error sum to a sane level
-		// Setting to current error ensures a smooth transition when the P term
-		// decreases enough for the I term to start acting upon the controller
-		// From that point the I term will build up as would be expected
-	//}
-	//else if (outputRampRate != 0 && !bounded(output, lastOutput - outputRampRate * dt, lastOutput + outputRampRate * dt))
-	//{
-	//	errorSum = error;
-	//}
-	//else if (maxIOutput != 0)
-	//{
-		//errorSum = clamp(errorSum + error, -maxError, maxError);
-		// In addition to output limiting directly, we also want to prevent I term
-		// buildup, so restrict the error directly
-	//}
-	//else
-	//{
-//		errorSum += error;
-	//}
 
 	//Restrict output to our specified output and ramp limits
 	if (outputRampRate != 0)
