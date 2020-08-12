@@ -26,14 +26,17 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 		ROS_WARN_STREAM("Parameter motor_ki not set for serial_communication. Using default setting: " << motor_ki);
 	if (!node_handle.getParam("motor_kd", motor_kd))
 		ROS_WARN_STREAM("Parameter motor_kd not set for serial_communication. Using default setting: " << motor_kd);
-
+	if (!node_handle.getParam("motor_f", motor_f))
+		ROS_WARN_STREAM("Parameter motor_f not set for serial_communication. Using default setting: " << motor_f);
 	//Setup PID
 	left_motor_pid.setPID(motor_kp, motor_ki, motor_kd);
 	left_motor_pid.setMaxIOutput(VelocityMax);
 	left_motor_pid.setOutputLimits(-VelocityMax, VelocityMax);
+	left_motor_pid.setF(motor_f);
 	right_motor_pid.setPID(motor_kp, motor_ki, motor_kd);
 	right_motor_pid.setMaxIOutput(VelocityMax);
 	right_motor_pid.setOutputLimits(-VelocityMax, VelocityMax);
+	right_motor_pid.setF(motor_f);
 	return true;
 }
 
@@ -65,21 +68,26 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 
 	//PID for motor controls, getOutput(current reading, target)
 	//Reset when 0 commanded or when change of direction
-	if (v_left_cmd == 0 || v_left_cmd * v_left < 0)
+	if (v_left_cmd == 0 || v_left_cmd * v_left < 0 || v_right_cmd == 0 || v_right_cmd * v_right < 0){
 		left_motor_pid.reset();
-	if (v_right_cmd == 0 || v_right_cmd * v_right < 0)
 		right_motor_pid.reset();
+	}
+
+	//if (v_right_cmd == 0 || v_right_cmd * v_right < 0){
+	//	right_motor_pid.reset();
+	//	left_motor_pid.reset();
+	//{
 
 	float left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
 	float right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
-	ROS_DEBUG("Post PID output left: %f \t right: %f", left_pid_out + v_left_cmd, right_pid_out + v_right_cmd);
+	//ROS_INFO("Post PID output left: %f \t right: %f", left_pid_out, right_pid_out);
 
 	//Account for motor deadzone
 	//velocitybuf[0] = v_left_cmd / VelocityMax * 500; // Convert to MCU velocity range: sends pwm signals at 1500, +/- 500
 	//velocitybuf[1] = v_right_cmd / VelocityMax * 500;
 	velocitybuf[0] = (v_left_cmd + left_pid_out) / VelocityMax * 500;
 	velocitybuf[1] = (v_right_cmd + right_pid_out) / VelocityMax * 500;
-
+	velocitybuf[0] = 0; velocitybuf[1] = 0;
 	//Left velocity is within deadzone
 	if (velocitybuf[0] < 0 && velocitybuf[0] > -deadzone_pulse_width)
 		velocitybuf[0] = -deadzone_pulse_width;

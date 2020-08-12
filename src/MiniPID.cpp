@@ -12,7 +12,7 @@
  **/
 
 #include "serial_communication/MiniPID.h"
-
+#include <iostream>
 //**********************************
 //Constructor functions
 //**********************************
@@ -283,30 +283,30 @@ double MiniPID::getOutput(double actual, double setpoint)
 
 	//And, finally, we can just add the terms up
 	output = Foutput + Poutput + Ioutput + Doutput;
-
+	std::cout << Foutput << "\t" << Poutput << "\t" << Ioutput << "\t" << Doutput << "\t" << errorSum << std::endl;
 	//If min/max output is set and the current computed output is not within bounds
-	if (minOutput != maxOutput && !bounded(output, minOutput, maxOutput))
-	{
-		errorSum = error;
+	//if (minOutput != maxOutput && !bounded(output, minOutput, maxOutput))
+	//{
+	//	errorSum = error;
 		// reset the error sum to a sane level
 		// Setting to current error ensures a smooth transition when the P term
 		// decreases enough for the I term to start acting upon the controller
 		// From that point the I term will build up as would be expected
-	}
-	else if (outputRampRate != 0 && !bounded(output, lastOutput - outputRampRate * dt, lastOutput + outputRampRate * dt))
-	{
-		errorSum = error;
-	}
-	else if (maxIOutput != 0)
-	{
-		errorSum = clamp(errorSum + error, -maxError, maxError);
+	//}
+	//else if (outputRampRate != 0 && !bounded(output, lastOutput - outputRampRate * dt, lastOutput + outputRampRate * dt))
+	//{
+	//	errorSum = error;
+	//}
+	//else if (maxIOutput != 0)
+	//{
+		//errorSum = clamp(errorSum + error, -maxError, maxError);
 		// In addition to output limiting directly, we also want to prevent I term
 		// buildup, so restrict the error directly
-	}
-	else
-	{
+	//}
+	//else
+	//{
 		errorSum += error;
-	}
+	//}
 
 	//Restrict output to our specified output and ramp limits
 	if (outputRampRate != 0)

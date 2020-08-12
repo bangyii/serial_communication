@@ -20,7 +20,7 @@ public:
     std::vector<float> getVelFromEncoder(std::vector<float> encoder);
 
     //Motor pid
-    float motor_kp = 1, motor_ki = 0, motor_kd = 0;
+    float motor_kp = 1, motor_ki = 0, motor_kd = 0, motor_f = 0;
     MiniPID left_motor_pid, right_motor_pid;
 
     //Parameters
