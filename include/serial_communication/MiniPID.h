@@ -19,6 +19,7 @@ public:
 	void setOutputLimits(double, double);
 	void setDirection(bool);
 	void setSetpoint(double);
+	void setDeadtime(double);
 	void reset();
 	void setOutputRampRate(double);
 	void setSetpointRange(double);
@@ -41,6 +42,7 @@ private:
 	double maxError;
 	double errorSum;
 	double prevError;
+	double deadTime;
 
 	double maxOutput;
 	double minOutput;

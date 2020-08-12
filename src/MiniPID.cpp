@@ -1,13 +1,15 @@
 /**
-* Small, easy to use PID implementation with advanced controller capability.<br> 
-* Minimal usage:<br>
-* setPID(p,i,d); <br>
-* ...looping code...{ <br>
-* output=getOutput(sensorvalue,target); <br>
-* }
-* 
-* @see http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-direction/improving-the-beginners-pid-introduction
-*/
+ * Code forked from author below. Changes made to take into account iteration time
+ * 
+ * Small, easy to use PID implementation with advanced controller capability.<br> 
+ * Minimal usage:<br>
+ * setPID(p,i,d); <br>
+ * ...looping code...{ <br>
+ * output=getOutput(sensorvalue,target); <br>
+ * }
+ * 
+ * @see http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-direction/improving-the-beginners-pid-introduction
+ **/
 
 #include "serial_communication/MiniPID.h"
 
@@ -54,6 +56,7 @@ void MiniPID::init()
 	lastOutput = 0;
 	outputFilter = 0;
 	setpointRange = 0;
+	deadTime = 0;
 }
 
 //**********************************
@@ -61,11 +64,11 @@ void MiniPID::init()
 //**********************************
 /**
  * Configure the Proportional gain parameter. <br>
- * this->responds quicly to changes in setpoint, and provides most of the initial driving force
+ * this responds quickly to changes in setpoint, and provides most of the initial driving force
  * to make corrections. <br>
  * Some systems can be used with only a P gain, and many can be operated with only PI.<br>
- * For position based controllers, this->is the first parameter to tune, with I second. <br>
- * For rate controlled systems, this->is often the second after F.
+ * For position based controllers, this is the first parameter to tune, with I second. <br>
+ * For rate controlled systems, this is often the second after F.
  *
  * @param p Proportional gain. Affects output according to <b>output+=P*(setpoint-current_value)</b>
  */
@@ -75,9 +78,14 @@ void MiniPID::setP(double p)
 	checkSigns();
 }
 
+void MiniPID::setDeadtime(double val)
+{
+	deadTime = val;
+}
+
 /**
  * Changes the I parameter <br>
- * this->is used for overcoming disturbances, and ensuring that the controller always gets to the control mode. 
+ * this is used for overcoming disturbances, and ensuring that the controller always gets to the control mode. 
  * Typically tuned second for "Position" based modes, and third for "Rate" or continuous based modes. <br>
  * Affects output through <b>output+=previous_errors*Igain ;previous_errors+=current_error</b>
  * 
@@ -98,7 +106,7 @@ void MiniPID::setI(double i)
 	I = i;
 	checkSigns();
 	/* Implementation note: 
-	 * this->Scales the accumulated error to avoid output errors. 
+	 * this scales the accumulated error to avoid output errors. 
 	 * As an example doubling the I term cuts the accumulated error in half, which results in the 
 	 * output change due to the I term constant during the transition. 
 	 *
@@ -112,7 +120,7 @@ void MiniPID::setD(double d)
 }
 
 /**Configure the FeedForward parameter. <br>
- * this->is excellent for Velocity, rate, and other	continuous control modes where you can 
+ * this is excellent for Velocity, rate, and other	continuous control modes where you can 
  * expect a rough output value based solely on the setpoint.<br>
  * Should not be used in "position" based control modes.
  * 
@@ -147,7 +155,7 @@ void MiniPID::setPID(double p, double i, double d, double f)
 }
 
 /**Set the maximum output value contributed by the I component of the system
- * this->can be used to prevent large windup issues and make tuning simpler
+ * this can be used to prevent large windup issues and make tuning simpler
  * @param maximum. Units are the same as the expected output value
  */
 void MiniPID::setMaxIOutput(double maximum)
@@ -234,13 +242,13 @@ double MiniPID::getOutput(double actual, double setpoint)
 	//Do the simple parts of the calculations
 	double error = setpoint - actual;
 
-	//Calculate F output. Notice, this->depends only on the setpoint, and not the error.
+	//Calculate F output. Notice, this depends only on the setpoint, and not the error.
 	Foutput = F * setpoint;
 
 	//Calculate P term
 	Poutput = P * error;
 
-	//If this->is our first time running this-> we don't actually _have_ a previous input or output.
+	//If this is our first time running this  we don't actually _have_ a previous input or output.
 	//For sensor, sanely assume it was exactly where it is now.
 	//For last output, we can assume it's the current time-independent outputs.
 	if (firstRun)
@@ -252,23 +260,22 @@ double MiniPID::getOutput(double actual, double setpoint)
 		firstRun = false;
 	}
 
-	// If dt is enabled, remember to re-tune the gains, start small to ensure the robot does not run into a wall
-	// float dt = (prev_time - std::chrono::system_clock::now()).count();
+	//Get time difference since last run
+	float dt = (prev_time - std::chrono::system_clock::now()).count() / 1000000000.0;
 
 	//Calculate D Term
-	//Note, this->is negative. this->actually "slows" the system if it's doing
-	//the correct thing, and small values helps prevent output spikes and overshoot
-
-	//Doutput = -D*(error-prevError)/dt
-	Doutput = -D * (actual - lastActual);
-	lastActual = actual;
+	//If rate of change of error is positive, then the derivative term should be positive to track
+	//target setpoint, as system is lagging behind
+	float error_rate = (error - prevError) / dt;
+	Doutput = D * error_rate;
 
 	//The Iterm is more complex. There's several things to factor in to make it easier to deal with.
 	// 1. maxIoutput restricts the amount of output contributed by the Iterm.
 	// 2. prevent windup by not increasing errorSum if we're already running against our max Ioutput
 	// 3. prevent windup by not increasing errorSum if output is output=maxOutput
-	//Ioutput = I*errorSum*dt;
-	Ioutput = I * errorSum;
+	Ioutput = I * errorSum * dt;
+
+	//Case 2: Clamp IOutput to max allowed integral output
 	if (maxIOutput != 0)
 	{
 		Ioutput = clamp(Ioutput, -maxIOutput, maxIOutput);
@@ -277,7 +284,7 @@ double MiniPID::getOutput(double actual, double setpoint)
 	//And, finally, we can just add the terms up
 	output = Foutput + Poutput + Ioutput + Doutput;
 
-	//Figure out what we're doing with the error.
+	//If min/max output is set and the current computed output is not within bounds
 	if (minOutput != maxOutput && !bounded(output, minOutput, maxOutput))
 	{
 		errorSum = error;
@@ -286,7 +293,7 @@ double MiniPID::getOutput(double actual, double setpoint)
 		// decreases enough for the I term to start acting upon the controller
 		// From that point the I term will build up as would be expected
 	}
-	else if (outputRampRate != 0 && !bounded(output, lastOutput - outputRampRate, lastOutput + outputRampRate))
+	else if (outputRampRate != 0 && !bounded(output, lastOutput - outputRampRate * dt, lastOutput + outputRampRate * dt))
 	{
 		errorSum = error;
 	}
@@ -304,7 +311,7 @@ double MiniPID::getOutput(double actual, double setpoint)
 	//Restrict output to our specified output and ramp limits
 	if (outputRampRate != 0)
 	{
-		output = clamp(output, lastOutput - outputRampRate, lastOutput + outputRampRate);
+		output = clamp(output, lastOutput - outputRampRate * dt, lastOutput + outputRampRate * dt);
 	}
 	if (minOutput != maxOutput)
 	{
@@ -322,7 +329,7 @@ double MiniPID::getOutput(double actual, double setpoint)
 }
 
 /**
- * Calculates the PID value using the last provided setpoint and actual valuess
+ * Calculates the PID value using the last provided setpoint and actual values
  * @return calculated output value for driving the actual to the target 
  */
 double MiniPID::getOutput()
@@ -341,7 +348,7 @@ double MiniPID::getOutput(double actual)
 }
 
 /**
- * Resets the controller. this->erases the I term buildup, and removes D gain on the next loop.
+ * Resets the controller. this erases the I term buildup, and removes D gain on the next loop.
  */
 void MiniPID::reset()
 {
@@ -359,7 +366,7 @@ void MiniPID::setOutputRampRate(double rate)
 
 /** Set a limit on how far the setpoint can be from the current position
  * <br>Can simplify tuning by helping tuning over a small range applies to a much larger range. 
- * <br>this->limits the reactivity of P term, and restricts impact of large D term
+ * <br>this limits the reactivity of P term, and restricts impact of large D term
  * during large setpoint adjustments. Increases lag and I term if range is too small.
  * @param range
  */
