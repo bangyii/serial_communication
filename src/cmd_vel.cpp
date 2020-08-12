@@ -30,6 +30,8 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 		ROS_WARN_STREAM("Parameter motor_f not set for serial_communication. Using default setting: " << motor_f);
 	if (!node_handle.getParam("frequency", frequency))
 		ROS_WARN_STREAM("Parameter frequency not set for serial_communication. Using default setting: " << frequency);
+	if (!node_handle.getParam("ramp_rate", ramp_rate))
+		ROS_WARN_STREAM("Parameter ramp_rate not set for serial _communication. Using default setting: " << ramp_rate);
 
 	//Setup PID
 	left_motor_pid.setPID(motor_kp, motor_ki, motor_kd);
@@ -37,11 +39,15 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 	left_motor_pid.setOutputLimits(-VelocityMax, VelocityMax);
 	left_motor_pid.setF(motor_f);
 	left_motor_pid.setFreq(frequency);
+	left_motor_pid.setOutputRampRate(ramp_rate); //ms-2
+
 	right_motor_pid.setPID(motor_kp, motor_ki, motor_kd);
 	right_motor_pid.setMaxIOutput(VelocityMax);
 	right_motor_pid.setOutputLimits(-VelocityMax, VelocityMax);
 	right_motor_pid.setF(motor_f);
 	right_motor_pid.setFreq(frequency);
+	right_motor_pid.setOutputRampRate(ramp_rate); //ms-2
+
 	return true;
 }
 
@@ -82,7 +88,7 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 	float left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
 	float right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
 	//ROS_INFO("Left error: %f \t Right error: %f", v_left_cmd - v_left, v_right_cmd - v_right);
-	ROS_INFO("Post PID output left: %f \t right: %f", left_pid_out + v_left_cmd, right_pid_out + v_right_cmd);
+	//ROS_INFO("Post PID output left: %f \t right: %f", left_pid_out + v_left_cmd, right_pid_out + v_right_cmd);
 
 	velocitybuf[0] = (v_left_cmd + left_pid_out) / VelocityMax * 500;
 	velocitybuf[1] = (v_right_cmd + right_pid_out) / VelocityMax * 500;

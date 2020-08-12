@@ -9,20 +9,17 @@ vel_filter_size: 10
 
 #motor deadzone size, unit is pulse width, if set to 500, motor will run at full speed always
 deadzone_pulse_width: 0
-#Without person
-#motor_kp: 0.35
-#motor_ki: 0.028
-#motor_kd: 0.0008
 
 #With person
-motor_kp: 0.0
-motor_ki: 1.5
+motor_kp: 0.5
+motor_ki: 1.3
 motor_kd: 0.0
 motor_f: 0.0
 frequency: 15.0
+
 ## calibration parameters odometry
-calibration_v_angular: 1.0 #0.88
-calibration_v_linear: 1.0 #0.92
+calibration_v_angular: 0.88 #0.88
+calibration_v_linear: 0.92 #0.92
 calibration_cmd_ang: 1.0 #0.42
 calibration_cmd_lin: 1.0 #0.7
 
