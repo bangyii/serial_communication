@@ -174,7 +174,7 @@ std::vector<float> CmdVel::getVelFromEncoder(std::vector<float> encoder)
 	// This is solved by limiting the max difference between subsequent velocity readouts.
 	// If acceleration is passed, just update velocity within acceleration limits
 	float right_acc = (v_right - v_right_prev) / dt;
-	float left_acc = (v_lfet - v_left_prev) / dt;
+	float left_acc = (v_left - v_left_prev) / dt;
 	if (fabs(right_acc) > wheel_acc_limit_){
 		v_right = v_right_prev + wheel_acc_limit_ * dt * (right_acc / fabs(right_acc));
 		ROS_WARN("Right wheel acceleration limit reached, capping right velocity change");
