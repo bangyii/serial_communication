@@ -173,11 +173,17 @@ std::vector<float> CmdVel::getVelFromEncoder(std::vector<float> encoder)
 	// Sometimes data gets lost and spikes are seen in the velocity readouts.
 	// This is solved by limiting the max difference between subsequent velocity readouts.
 	// If acceleration is passed, just update velocity within acceleration limits
-	if (fabs(v_right - v_right_prev) / dt > wheel_acc_limit_)
-		v_right = v_right_prev + wheel_acc_limit_ * dt * (v_right / fabs(v_right));
+	float right_acc = (v_right - v_right_prev) / dt;
+	float left_acc = (v_lfet - v_left_prev) / dt;
+	if (fabs(right_acc) > wheel_acc_limit_){
+		v_right = v_right_prev + wheel_acc_limit_ * dt * (right_acc / fabs(right_acc));
+		ROS_WARN("Right wheel acceleration limit reached, capping right velocity change");
+	}
 
-	if (fabs(v_left - v_left_prev) / dt > wheel_acc_limit_)
-		v_left = v_left_prev + wheel_acc_limit_ * dt * (v_left / fabs(v_left));
+	if (fabs(left_acc) > wheel_acc_limit_){
+		v_left = v_left_prev + wheel_acc_limit_ * dt * (left_acc / fabs(left_acc));
+		ROS_WARN("Left wheel acceleration limit reached, capping left velocity change");
+	}
 
 	// Deadzone the velocities, to avoid accumulation of noise in steady position
 	if (fabs(v_right) < 0.01 || fabs(v_right) > 5 || std::isnan(v_right))
