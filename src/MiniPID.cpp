@@ -49,7 +49,6 @@ void MiniPID::init()
 	maxOutput = 0;
 	minOutput = 0;
 	setpoint = 0;
-	prevOutput = 0;
 	lastActual = 0;
 	firstRun = true;
 	reversed = false;
@@ -223,6 +222,15 @@ void MiniPID::setSetpoint(double setpoint)
 	this->setpoint = setpoint;
 }
 
+/** Used to skip this PID cycle. Required to prevent integral windup if many cycles are skipped
+ * @return calculated output from the previous PID cycle
+ **/
+double MiniPID::skipCycle()
+{
+	prev_time = std::chrono::system_clock::now();
+	return lastOutput;
+}
+
 /** Calculate the PID value needed to hit the target setpoint. 
 * Automatically re-calculates the output at each call. 
 * @param actual The monitored value
@@ -254,13 +262,12 @@ double MiniPID::getOutput(double actual, double setpoint)
 		prevError = error;
 		lastOutput = Poutput + Foutput;
 		prev_time = std::chrono::system_clock::now();
-		prevOutput = 0;
 		firstRun = false;
 	}
 
 	//Only run cycle when time passed is greater than 1/Hz
 	if ((std::chrono::system_clock::now() - prev_time).count() / 1000000000.0 < 1 / frequency)
-		return prevOutput;
+		return lastOutput;
 
 	//Ramp the setpoint used for calculations if user has opted to do so
 	if (setpointRange != 0)
@@ -327,7 +334,6 @@ double MiniPID::getOutput(double actual, double setpoint)
 	lastOutput = output;
 	prev_time = std::chrono::system_clock::now();
 	prevError = error;
-	prevOutput = output;
 	return output;
 }
 

@@ -143,6 +143,7 @@ int main(int argc, char **argv)
 		//velocity = {v_linear, v_angular}
 		std::vector<float> velocity = odom.getVelocity();
 		velocity_pub.publish(rosmsg::makeTwist(velocity[0], velocity[1]));
+		cmdVel.setCurrentAngular(velocity[1]);
 
 		// Publish Odometry Pose2D
 		odom2d_pub.publish(rosmsg::makePose2D(currentOdom[0], currentOdom[1], currentOdom[2]));

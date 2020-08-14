@@ -17,6 +17,7 @@ public:
     void getCmdVel(int16_t velocitybuf[3]);
     void medianFilter(float &x, float &y);
     bool readParameters(ros::NodeHandle &node_handle);
+    void setCurrentAngular(float val);
     std::vector<float> getVelFromEncoder(std::vector<float> encoder);
 
     //Motor pid
@@ -29,6 +30,7 @@ public:
     geometry_msgs::Twist cmd_vel;
     float calibration_cmd_ang_ = 1.0;
     float calibration_cmd_lin_ = 1.0;
+    float calibration_v_angular_ = 1.0;
     float wheel_diameter = 0.25;
     float base_width = 0.5;
     float VelocityMax = 1.125; //m/s
@@ -39,6 +41,8 @@ public:
     bool apply_vel_filter_ = true;
     int vel_filter_size_ = 5;
     float wheel_acc_limit_ = 10.0;
+    float w_tolerance = 0.0;
+    float current_angular = 0;
 
 private:
     ros::Time timestamp;

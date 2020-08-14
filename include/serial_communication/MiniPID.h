@@ -25,6 +25,7 @@ public:
 	void setOutputRampRate(double);
 	void setSetpointRange(double);
 	void setOutputFilter(double);
+	double skipCycle();
 	double getOutput();
 	double getOutput(double);
 	double getOutput(double, double);
@@ -50,7 +51,6 @@ private:
 	double minOutput;
 
 	double setpoint;
-	double prevOutput;
 
 	double lastActual;
 

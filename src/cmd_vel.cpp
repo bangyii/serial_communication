@@ -31,7 +31,11 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 	if (!node_handle.getParam("frequency", frequency))
 		ROS_WARN_STREAM("Parameter frequency not set for controller cmd vel. Using default setting: " << frequency);
 	if (!node_handle.getParam("motor_max_accel", ramp_rate))
-		ROS_WARN_STREAM("Parameter motor_max_accel not set for serial _communication. Using default setting: " << ramp_rate);
+		ROS_WARN_STREAM("Parameter motor_max_accel not set for controller cmd vel. Using default setting: " << ramp_rate);
+	if (!node_handle.getParam("calibration_v_angular", calibration_v_angular_))
+		ROS_WARN_STREAM("Parameter calibration_v_angular not set for controller odom. Using default setting: " << calibration_v_angular_);
+	if (!node_handle.getParam("w_tolerance", w_tolerance))
+		ROS_WARN_STREAM("Parameter w_tolerance not set for controller odom. Using default setting: " << w_tolerance);
 
 	//Setup PID
 	left_motor_pid.setPID(motor_kp, motor_ki, motor_kd);
@@ -49,6 +53,11 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 	right_motor_pid.setOutputRampRate(ramp_rate); //ms-2
 
 	return true;
+}
+
+void CmdVel::setCurrentAngular(float val)
+{
+	current_angular = val;
 }
 
 void CmdVel::cmdCallback(const geometry_msgs::Twist msg_cmd)
@@ -85,9 +94,33 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 		right_motor_pid.reset();
 	}
 
-	float left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
-	float right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
-	//ROS_INFO("Left error: %f \t Right error: %f", v_left_cmd - v_left, v_right_cmd - v_right);
+	//Set a tolerance for acceptable deviation of angular velocity from commanded angular velocity
+	//Used to prevent swirling motion before reaching a steady straight motion
+	float target_angular = (v_right_cmd - v_left_cmd) / (base_width)*calibration_v_angular_;
+	float left_pid_out, right_pid_out;
+
+	//Right wheel is too fast, ie turning left when commanded to go straight
+	if (current_angular - target_angular > w_tolerance && w_tolerance != 0)
+	{
+		ROS_WARN("Right wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
+		left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
+		right_pid_out = right_motor_pid.skipCycle();
+	}
+
+	//Left wheel is too fast, ie turning right when commanded to go straight
+	else if (current_angular - target_angular < -w_tolerance && w_tolerance != 0)
+	{
+		ROS_WARN("Left wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
+		right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
+		left_pid_out = left_motor_pid.skipCycle();
+	}
+
+	else
+	{
+		left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
+		right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
+	}
+
 	//ROS_INFO("Post PID output left: %f \t right: %f", left_pid_out + v_left_cmd, right_pid_out + v_right_cmd);
 
 	velocitybuf[0] = (v_left_cmd + left_pid_out) / VelocityMax * 500;
@@ -175,14 +208,16 @@ std::vector<float> CmdVel::getVelFromEncoder(std::vector<float> encoder)
 	// If acceleration is passed, just update velocity within acceleration limits
 	float right_acc = (v_right - v_right_prev) / dt;
 	float left_acc = (v_left - v_left_prev) / dt;
-	if (fabs(right_acc) > wheel_acc_limit_){
+	if (fabs(right_acc) > wheel_acc_limit_)
+	{
 		v_right = v_right_prev + wheel_acc_limit_ * dt * (right_acc / fabs(right_acc));
-		ROS_WARN("Right wheel acceleration limit reached, capping right velocity change");
+		ROS_WARN("Right wheel acceleration limit reached, limiting right velocity change");
 	}
 
-	if (fabs(left_acc) > wheel_acc_limit_){
+	if (fabs(left_acc) > wheel_acc_limit_)
+	{
 		v_left = v_left_prev + wheel_acc_limit_ * dt * (left_acc / fabs(left_acc));
-		ROS_WARN("Left wheel acceleration limit reached, capping left velocity change");
+		ROS_WARN("Left wheel acceleration limit reached, limiting left velocity change");
 	}
 
 	// Deadzone the velocities, to avoid accumulation of noise in steady position
