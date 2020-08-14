@@ -4,7 +4,7 @@ publish_odom_tf: false
 apply_vel_filter: true
 odom_update_method: "odom"
 
-wheel_acc_limit: 10.0
+wheel_acc_limit: 3000.0
 vel_filter_size: 10
 
 #motor deadzone size, unit is pulse width, if set to 500, motor will run at full speed always
@@ -18,8 +18,8 @@ motor_f: 0.0
 frequency: 15.0
 
 ## calibration parameters odometry
-calibration_v_angular: 1.0 #0.88
-calibration_v_linear: 1.0 #0.92
+calibration_v_angular: 0.92 #0.88
+calibration_v_linear: 0.95 #0.92
 calibration_cmd_ang: 1.0 #0.42
 calibration_cmd_lin: 1.0 #0.7
 
@@ -29,7 +29,7 @@ bias_acc_y: 0.015
 bias_acc_z: 0 
 bias_gyro_x: 0.0
 bias_gyro_y: 0.0 
-bias_gyro_z: -0.0025
+bias_gyro_z: -0.00325
 cal_imu_acc: 1.0
 cal_imu_gyro: 1.0
 
