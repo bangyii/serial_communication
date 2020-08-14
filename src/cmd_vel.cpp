@@ -9,29 +9,29 @@ CmdVel::CmdVel()
 bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 {
 	if (!node_handle.getParam("calibration_cmd_ang", calibration_cmd_ang_))
-		ROS_WARN_STREAM("Parameter calibration_cmd_ang not set for serial_communication. Using default setting: " << calibration_cmd_ang_);
+		ROS_WARN_STREAM("Parameter calibration_cmd_ang not set for controller cmd vel. Using default setting: " << calibration_cmd_ang_);
 	if (!node_handle.getParam("calibration_cmd_lin", calibration_cmd_lin_))
-		ROS_WARN_STREAM("Parameter calibration_cmd_lin not set for serial_communication. Using default setting: " << calibration_cmd_lin_);
+		ROS_WARN_STREAM("Parameter calibration_cmd_lin not set for controller cmd vel. Using default setting: " << calibration_cmd_lin_);
 	if (!node_handle.getParam("apply_vel_filter", apply_vel_filter_))
-		ROS_WARN_STREAM("Parameter apply_vel_filter not set for serial_communication. Using default setting: " << apply_vel_filter_);
+		ROS_WARN_STREAM("Parameter apply_vel_filter not set for controller cmd vel. Using default setting: " << apply_vel_filter_);
 	if (!node_handle.getParam("vel_filter_size", vel_filter_size_))
-		ROS_WARN_STREAM("Parameter vel_filter_size not set for serial_communication. Using default setting: " << vel_filter_size_);
+		ROS_WARN_STREAM("Parameter vel_filter_size not set for controller cmd vel. Using default setting: " << vel_filter_size_);
 	if (!node_handle.getParam("wheel_acc_limit", wheel_acc_limit_))
-		ROS_WARN_STREAM("Parameter wheel_acc_limit not set for serial_communication. Using default setting: " << wheel_acc_limit_);
+		ROS_WARN_STREAM("Parameter wheel_acc_limit not set for controller cmd vel. Using default setting: " << wheel_acc_limit_);
 	if (!node_handle.getParam("deadzone_pulse_width", deadzone_pulse_width))
-		ROS_WARN_STREAM("Parameter deadzone_pulse_width not set for serial_communication. Using default setting: " << deadzone_pulse_width);
+		ROS_WARN_STREAM("Parameter deadzone_pulse_width not set for controller cmd vel. Using default setting: " << deadzone_pulse_width);
 	if (!node_handle.getParam("motor_kp", motor_kp))
-		ROS_WARN_STREAM("Parameter motor_kp not set for serial_communication. Using default setting: " << motor_kp);
+		ROS_WARN_STREAM("Parameter motor_kp not set for controller cmd vel. Using default setting: " << motor_kp);
 	if (!node_handle.getParam("motor_ki", motor_ki))
-		ROS_WARN_STREAM("Parameter motor_ki not set for serial_communication. Using default setting: " << motor_ki);
+		ROS_WARN_STREAM("Parameter motor_ki not set for controller cmd vel. Using default setting: " << motor_ki);
 	if (!node_handle.getParam("motor_kd", motor_kd))
-		ROS_WARN_STREAM("Parameter motor_kd not set for serial_communication. Using default setting: " << motor_kd);
+		ROS_WARN_STREAM("Parameter motor_kd not set for controller cmd vel. Using default setting: " << motor_kd);
 	if (!node_handle.getParam("motor_f", motor_f))
-		ROS_WARN_STREAM("Parameter motor_f not set for serial_communication. Using default setting: " << motor_f);
+		ROS_WARN_STREAM("Parameter motor_f not set for controller cmd vel. Using default setting: " << motor_f);
 	if (!node_handle.getParam("frequency", frequency))
-		ROS_WARN_STREAM("Parameter frequency not set for serial_communication. Using default setting: " << frequency);
-	if (!node_handle.getParam("ramp_rate", ramp_rate))
-		ROS_WARN_STREAM("Parameter ramp_rate not set for serial _communication. Using default setting: " << ramp_rate);
+		ROS_WARN_STREAM("Parameter frequency not set for controller cmd vel. Using default setting: " << frequency);
+	if (!node_handle.getParam("motor_max_accel", ramp_rate))
+		ROS_WARN_STREAM("Parameter motor_max_accel not set for serial _communication. Using default setting: " << ramp_rate);
 
 	//Setup PID
 	left_motor_pid.setPID(motor_kp, motor_ki, motor_kd);

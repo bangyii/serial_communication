@@ -213,9 +213,8 @@ include_directories(
 add_library(serial_communication src/serial_communication.cpp)
 add_library(odom src/odom.cpp)
 add_library(MiniPID src/MiniPID.cpp)
-add_library(AdaptiveControl src/adaptive_ctrl.cpp)
 add_library(cmd_vel src/cmd_vel.cpp)
-target_link_libraries(cmd_vel MiniPID AdaptiveControl)
+target_link_libraries(cmd_vel MiniPID)
 
 
 

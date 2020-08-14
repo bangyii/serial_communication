@@ -7,6 +7,35 @@ odom_update_method: "odom"
 wheel_acc_limit: 3000.0
 vel_filter_size: 10
 
+#Covariances
+#IMU covariance matrices, measured using rosbag during experiment while driving around and calculated using numpy. 0 entry means negligible.
+
+#orientation_cov: [-1, -1, -1,
+#                  -1, -1, -1,
+#                  -1, -1, -1]
+
+gyro_cov: [0.002, 0, 0,
+           0, 0.002, 0,
+           0, 0, 0.002]
+
+acc_cov: [0.002, 0, 0,
+          0, 0.002, 0,
+          0, 0, 0.34]
+
+pose_cov: [0.2, 0, 0, 0, 0, 0,
+           0, 0.2, 0, 0, 0, 0,
+           0, 0, 0.01, 0, 0, 0,
+           0, 0, 0, 0.01, 0, 0,
+           0, 0, 0, 0, 0.01, 0,
+           0, 0, 0, 0, 0, 0.4]
+
+twist_cov: [0.1, 0, 0, 0, 0, 0,
+           0, 0.01, 0, 0, 0, 0,
+           0, 0, 0.01, 0, 0, 0,
+           0, 0, 0, 0.01, 0, 0,
+           0, 0, 0, 0, 0.01, 0,
+           0, 0, 0, 0, 0, 0.1]
+
 #motor deadzone size, unit is pulse width, if set to 500, motor will run at full speed always
 deadzone_pulse_width: 0
 

@@ -12,31 +12,29 @@
 #include <boost/asio.hpp>				// Include boost library function
 #include <chrono>
 
-// IMU covariance matrices, measured using rosbag during experiment while driving around and calculated using numpy. 0 entry means negligible.
-std::vector<double> CovOrient = {-1, -1, -1, // Orientation not given by IMU, set Covariance to -1 and estimates to 0.
-								 -1, -1, -1,
-								 -1, -1, -1};
-// std::vector<double> CovOrient = {1, 0, 0,
-// 								0, 1, 0,
-// 								0, 0, 1};
-std::vector<double> CovGyro = {0.002, 0, 0,
-							   0, 0.002, 0,
-							   0, 0, 0.002};
-std::vector<double> CovAcc = {0.002, 0, 0,
-							  0, 0.002, 0,
-							  0, 0, 0.34};
-std::vector<double> CovOdom = {0.2, 0, 0, 0, 0, 0,
-							   0, 0.2, 0, 0, 0, 0,
-							   0, 0, 0.01, 0, 0, 0,
-							   0, 0, 0, 0.01, 0, 0,
-							   0, 0, 0, 0, 0.01, 0,
-							   0, 0, 0, 0, 0, 0.4};
-std::vector<double> CovVel = {0.1, 0, 0, 0, 0, 0,
-							  0, 0.01, 0, 0, 0, 0,
-							  0, 0, 0.01, 0, 0, 0,
-							  0, 0, 0, 0.01, 0, 0,
-							  0, 0, 0, 0, 0.01, 0,
-							  0, 0, 0, 0, 0, 0.1};
+std::vector<double> CovOrient = {0.05, 0, 0,
+								 0, 0.05, 0,
+								 0, 0, 0.05};
+std::vector<double> CovGyro = {0.05, 0, 0,
+							   0, 0.05, 0,
+							   0, 0, 0.05};
+std::vector<double> CovAcc = {0.05, 0, 0,
+							  0, 0.05, 0,
+							  0, 0, 0.05};
+std::vector<double> CovPose = {0.05, 0, 0, 0, 0, 0,
+							   0, 0.05, 0, 0, 0, 0,
+							   0, 0, 0.05, 0, 0, 0,
+							   0, 0, 0, 0.05, 0, 0,
+							   0, 0, 0, 0, 0.05, 0,
+							   0, 0, 0, 0, 0, 0.05};
+std::vector<double> CovTwist = {0.05, 0, 0, 0, 0, 0,
+							  	0, 0.05, 0, 0, 0, 0,
+							  	0, 0, 0.05, 0, 0, 0,
+							  	0, 0, 0, 0.05, 0, 0,
+							  	0, 0, 0, 0, 0.05, 0,
+							  	0, 0, 0, 0, 0, 0.05};
+
+bool readParameters(ros::NodeHandle &nh);
 
 int main(int argc, char **argv)
 {
@@ -47,7 +45,7 @@ int main(int argc, char **argv)
 	CmdVel cmdVel;
 
 	// Read Parameters
-	if (!serial.readParameters(node_handle) || !odom.readParameters(node_handle) || !cmdVel.readParameters(node_handle))
+	if (!readParameters(node_handle) || !serial.readParameters(node_handle) || !odom.readParameters(node_handle) || !cmdVel.readParameters(node_handle))
 	{
 		ROS_ERROR("Could not read parameters for serial_communication");
 		ros::requestShutdown();
@@ -70,14 +68,6 @@ int main(int argc, char **argv)
 	int16_t buf[11];		// Define the received data
 	int16_t velocitybuf[3]; //define wheelchair speed including side1 x and side2 y as well as one header for data verification.
 	std::vector<float> JoystickValue = {0, 0};
-
-	// Parameters
-	// // Data quality check
-	// float variance_x,variance_y,mean_x,mean_y;
-	// int Period_Count=500;
-	// int count=0;
-	// std::vector<float> x_data(Period_Count);
-	// std::vector<float> y_data(Period_Count);
 
 	//TODO: unnecessary duplicate of variable
 	odom.base_width = cmdVel.base_width = 0.5;
@@ -143,28 +133,6 @@ int main(int argc, char **argv)
 		//currentOdom = {x_odom, y_odom, theta}
 		std::vector<float> currentOdom = odom.getOdom(velocity_raw);
 
-		// if(count>=Period_Count){
-		// 	mean_x=mean_y=variance_x=variance_y=0.;
-		//     for(int i=0;i<Period_Count;i++){
-		// 		mean_x+=x_data[i];
-		// 		mean_y+=y_data[i];
-		// 	}
-		// 	mean_x/=Period_Count;
-		// 	mean_y/=Period_Count;
-		// 	for(int i=0;i<Period_Count;i++){
-		// 		variance_x+=(x_data[i]-mean_x)*(x_data[i]-mean_x);
-		// 		variance_y+=(y_data[i]-mean_y)*(y_data[i]-mean_y);
-		// 	}
-		// 	variance_x/=Period_Count;
-		// 	variance_y/=Period_Count;
-		// 	count=0;
-		// 	std::cout<<"x variance "<<std::sqrt(variance_x)<<" y variance "<<std::sqrt(variance_y)<<std::endl;
-		// }else{
-		// 	x_data[count]=JoystickValue[0];
-		// 	y_data[count]=JoystickValue[1];
-		// 	count+=1;
-		// }
-
 		// Publish Joystick data
 		joystick_pub.publish(rosmsg::makeFloat32MultiArray(JoystickValue));
 
@@ -182,7 +150,7 @@ int main(int argc, char **argv)
 		// Publish Odometry message
 		odom_pub.publish(rosmsg::makeOdometry(rosmsg::makeHeader("odom", ros::Time::now()), "base_link",
 											  currentOdom[0], currentOdom[1], currentOdom[2], velocity[0], velocity[1],
-											  CovOdom, CovVel));
+											  CovPose, CovTwist));
 
 		// Publish IMU data
 		acceleration_pub.publish(rosmsg::makeIMU(rosmsg::makeHeader("base_link", ros::Time::now()),
@@ -209,4 +177,20 @@ int main(int argc, char **argv)
 	write(sp, boost::asio::buffer(velocitybuf));
 	serial.runIOService();
 	return 0;
+}
+
+bool readParameters(ros::NodeHandle &nh)
+{
+	if (!nh.getParam("orientation_cov", CovOrient))
+		ROS_WARN_STREAM("Parameter orientation_cov not set. Using default setting: 0.05 * (3x3) Identity matrix");
+	if (!nh.getParam("gyro_cov", CovGyro))
+		ROS_WARN_STREAM("Parameter gyro_cov not set. Using default setting: 0.05 * (3x3) Identity matrix");
+	if (!nh.getParam("acc_cov", CovAcc))
+		ROS_WARN_STREAM("Parameter acc_cov not set. Using default setting: 0.05 * (3x3) Identity matrix");
+	if (!nh.getParam("pose_cov", CovPose))
+		ROS_WARN_STREAM("Parameter odom_cov not set. Using default setting: 0.05 * (6x6) Identity matrix");
+	if (!nh.getParam("twist_cov", CovTwist))
+		ROS_WARN_STREAM("Parameter velocity_cov not set. Using default setting: 0.05 * (6x6) Identity matrix");
+
+	return true;
 }

@@ -10,29 +10,29 @@ Odom::Odom()
 bool Odom::readParameters(ros::NodeHandle &node_handle)
 {
 	if (!node_handle.getParam("calibration_v_angular", calibration_v_angular_))
-		ROS_WARN_STREAM("Parameter calibration_v_angular not set for serial_communication. Using default setting: " << calibration_v_angular_);
+		ROS_WARN_STREAM("Parameter calibration_v_angular not set for controller odom. Using default setting: " << calibration_v_angular_);
 	if (!node_handle.getParam("calibration_v_linear", calibration_v_linear_))
-		ROS_WARN_STREAM("Parameter calibration_v_linear not set for serial_communication. Using default setting: " << calibration_v_linear_);
+		ROS_WARN_STREAM("Parameter calibration_v_linear not set for controller odom. Using default setting: " << calibration_v_linear_);
 	if (!node_handle.getParam("bias_acc_x", bias_acc_x_))
-		ROS_WARN_STREAM("Parameter bias_acc_x not set for serial_communication. Using default setting: " << bias_acc_x_);
+		ROS_WARN_STREAM("Parameter bias_acc_x not set for controller odom. Using default setting: " << bias_acc_x_);
 	if (!node_handle.getParam("bias_acc_y", bias_acc_y_))
-		ROS_WARN_STREAM("Parameter bias_acc_y not set for serial_communication. Using default setting: " << bias_acc_y_);
+		ROS_WARN_STREAM("Parameter bias_acc_y not set for controller odom. Using default setting: " << bias_acc_y_);
 	if (!node_handle.getParam("bias_acc_z", bias_acc_z_))
-		ROS_WARN_STREAM("Parameter bias_acc_z not set for serial_communication. Using default setting: " << bias_acc_z_);
+		ROS_WARN_STREAM("Parameter bias_acc_z not set for controller odom. Using default setting: " << bias_acc_z_);
 	if (!node_handle.getParam("bias_gyro_x", bias_gyro_x_))
-		ROS_WARN_STREAM("Parameter bias_gyro_x not set for serial_communication. Using default setting: " << bias_gyro_x_);
+		ROS_WARN_STREAM("Parameter bias_gyro_x not set for controller odom. Using default setting: " << bias_gyro_x_);
 	if (!node_handle.getParam("bias_gyro_y", bias_gyro_y_))
-		ROS_WARN_STREAM("Parameter bias_gyro_y not set for serial_communication. Using default setting: " << bias_gyro_y_);
+		ROS_WARN_STREAM("Parameter bias_gyro_y not set for controller odom. Using default setting: " << bias_gyro_y_);
 	if (!node_handle.getParam("bias_gyro_z", bias_gyro_z_))
-		ROS_WARN_STREAM("Parameter bias_gyro_z not set for serial_communication. Using default setting: " << bias_gyro_z_);
+		ROS_WARN_STREAM("Parameter bias_gyro_z not set for controller odom. Using default setting: " << bias_gyro_z_);
 	if (!node_handle.getParam("cal_imu_gyro", cal_imu_gyro_))
-		ROS_WARN_STREAM("Parameter cal_imu_gyro not set for serial_communication. Using default setting: " << cal_imu_gyro_);
+		ROS_WARN_STREAM("Parameter cal_imu_gyro not set for controller odom. Using default setting: " << cal_imu_gyro_);
 	if (!node_handle.getParam("cal_imu_acc", cal_imu_acc_))
-		ROS_WARN_STREAM("Parameter cal_imu_acc not set for serial_communication. Using default setting: " << cal_imu_acc_);
+		ROS_WARN_STREAM("Parameter cal_imu_acc not set for controller odom. Using default setting: " << cal_imu_acc_);
     if (!node_handle.getParam("odom_update_method", odom_update_method_))
-		ROS_WARN_STREAM("Parameter odom_update_method not set for serial_communication. Using default setting: " << odom_update_method_);
+		ROS_WARN_STREAM("Parameter odom_update_method not set for controller odom. Using default setting: " << odom_update_method_);
 	if (!node_handle.getParam("publish_odom_tf", publish_odom_tf_))
-		ROS_WARN_STREAM("Parameter publish_odom_tf not set for serial_communication. Using default setting: " << publish_odom_tf_);
+		ROS_WARN_STREAM("Parameter publish_odom_tf not set for controller odom. Using default setting: " << publish_odom_tf_);
 
 	return true;
 }
