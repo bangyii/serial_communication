@@ -39,12 +39,20 @@ twist_cov: [0.1, 0, 0, 0, 0, 0,
 #motor deadzone size, unit is pulse width, if set to 500, motor will run at full speed always
 deadzone_pulse_width: 0
 
-#With person
+#Controller parameters, With person
 motor_kp: 0.5
 motor_ki: 1.3
 motor_kd: 0.0
 motor_f: 0.0
-frequency: 15.0
+frequency: 15.0 #controller frequency, default 5.0
+
+#angular tolerance for commanded ang_vel vs actual ang_vel. 
+#Lower tolerance (>0) reduces inaccuracy of actual path vs command path
+# 0 to disable
+w_tolerance: 0.1 #default 0
+
+#ramp_rate: max ramping rate for motor velocity, default 0.3
+
 
 ## calibration parameters odometry
 calibration_v_angular: 0.92 #0.88
