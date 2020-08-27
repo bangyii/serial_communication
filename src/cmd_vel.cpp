@@ -100,7 +100,7 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 	float left_pid_out, right_pid_out;
 
 	//Right wheel is too fast, ie turning left when commanded to go straight
-	if (current_angular - target_angular > w_tolerance && w_tolerance != 0)
+	if (current_angular - target_angular > w_tolerance && w_tolerance != 0 && v_left_cmd*v_right_cmd > 0)
 	{
 		ROS_WARN("Right wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
 		left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
@@ -108,7 +108,7 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 	}
 
 	//Left wheel is too fast, ie turning right when commanded to go straight
-	else if (current_angular - target_angular < -w_tolerance && w_tolerance != 0)
+	else if (current_angular - target_angular < -w_tolerance && w_tolerance != 0 && v_left_cmd*v_right_cmd > 0)
 	{
 		ROS_WARN("Left wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
 		right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
@@ -122,9 +122,9 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 	}
 
 	//ROS_INFO("Post PID output left: %f \t right: %f", left_pid_out + v_left_cmd, right_pid_out + v_right_cmd);
-
-	velocitybuf[0] = (v_left_cmd + left_pid_out) / VelocityMax * 500;
-	velocitybuf[1] = (v_right_cmd + right_pid_out) / VelocityMax * 500;
+	//PID_out = F*setpoint + P*e + I*e_sum*dt + D*de/dt
+	velocitybuf[0] = (left_pid_out) / VelocityMax * 500;
+	velocitybuf[1] = (right_pid_out) / VelocityMax * 500;
 
 	//Left velocity is within deadzone
 	if (velocitybuf[0] < 0 && velocitybuf[0] > -deadzone_pulse_width)
