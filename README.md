@@ -7,33 +7,32 @@ publishes all sensor data, and sends velocity commands to the robot.
 ## Node description
 
 ## Subscribers
-/cmd_vel [geometry_msgs/Twist]:
-Command velocity. These commands are forwarded directly to the actuators. 
+**/cmd_vel [geometry_msgs/Twist]:** Command velocity. These commands are forwarded directly to the actuators. 
 
-/pose2D [geometry_msgs/Pose2D]:
+**/pose2D [geometry_msgs/Pose2D]:**
 Can be used to improve odometry.
 
-/ekf/odom [nav_msgs/Odometry]:
+**/ekf/odom [nav_msgs/Odometry]:**
 Can alternatively be used to improve odometry.
 
 ## Publishers
-/user/joy [std_msgs/Float32MultiArray]:
+**/user/joy [std_msgs/Float32MultiArray]:**
 Joystick output from the wheelchair joystick
 
-/velocities [geometry_msgs/Twist]:
+**/velocities [geometry_msgs/Twist]:**
 linear and angular velocity based on wheel encoders
 
-/velocities_raw [std_msgs/Float32MultiArray]:
+**/velocities_raw [std_msgs/Float32MultiArray]:**
 individual velocities left and right encoders
 
-/imu [sensor_msgs/IMU]:
+**/imu [sensor_msgs/IMU]:**
 imu data
 
-/encoders/odom [nav_msgs/Odometry]:
+**/encoders/odom [nav_msgs/Odometry]:**
 Odometry estimation based on previous odometry estimation and current velocity measurement. 
 If available, the odometry estimation of e.g. EKF can be used to improve the guess. 
 
-/encoders/pose2D [geometry_msgs/Pose2D]:
+**/encoders/pose2D [geometry_msgs/Pose2D]:**
 2d pose estimation based on encoder odometry. More convenient format for some applications
 
 ## TF Broadcaster
@@ -127,7 +126,7 @@ This means that if the IMU is reporting an x angular velocity of 1 when it shoul
 
 **frequency:** Frequency at which to run the PID loop.
 
-**motor_max_accel:** Ramping rate of the PID output, this is used to prevent jerky motions of the motor. If the motorPID calculated exceeds the motor_max_accel, then motorPID is limited to and increase of motor_max_accel * dt.
+**motor_max_accel:** Ramping rate of the PID output, this is used to prevent jerky motions of the motor. If the motorPID calculated exceeds the motor_max_accel, then motorPID is limited to an increase of motor_max_accel * dt.
 
         motorPID = clamp(motorPID, lastMotorPID - motor_max_accel * dt, lastMotorPID + motor_max_accel * dt)
 
