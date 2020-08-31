@@ -42,6 +42,7 @@ public:
     int vel_filter_size_ = 5;
     float wheel_acc_limit_ = 10.0;
     float w_tolerance = 0.0;
+    float pid_filter = 0.0;
     float current_angular = 0;
 
 private:

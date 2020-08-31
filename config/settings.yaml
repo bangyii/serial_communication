@@ -4,8 +4,8 @@ publish_odom_tf: false
 apply_vel_filter: true
 odom_update_method: "odom"
 
-wheel_acc_limit: 10.0
-vel_filter_size: 10
+wheel_acc_limit: 20.0
+vel_filter_size: 20
 x_joy_bias: -0.03
 y_joy_bias: -0.015
 
@@ -42,9 +42,9 @@ twist_cov: [0.1, 0, 0, 0, 0, 0,
 deadzone_pulse_width: 0
 
 #Controller parameters, With person
-motor_kp: 0.5
-motor_ki: 1.3
-motor_kd: 0.0
+motor_kp: 1.5 #0.5
+motor_ki: 2.0
+motor_kd: 0.1
 motor_f: 1.0
 frequency: 15.0 #controller frequency, default 5.0
 
@@ -54,7 +54,7 @@ frequency: 15.0 #controller frequency, default 5.0
 w_tolerance: 0 #default 0
 
 ramp_rate: 0.8 #max ramping rate for motor velocity, default 0.3
-
+pid_filter: 0.15 #exponential filter applied on pid output, increasing this decreases responsiveness
 
 ## calibration parameters odometry
 calibration_v_angular: 0.88 #0.92

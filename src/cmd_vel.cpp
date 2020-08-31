@@ -36,6 +36,9 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 		ROS_WARN_STREAM("Parameter calibration_v_angular not set for controller odom. Using default setting: " << calibration_v_angular_);
 	if (!node_handle.getParam("w_tolerance", w_tolerance))
 		ROS_WARN_STREAM("Parameter w_tolerance not set for controller odom. Using default setting: " << w_tolerance);
+	if (!node_handle.getParam("pid_filter", pid_filter))
+                ROS_WARN_STREAM("Parameter pid_filter not set for controller odom. Using default setting: " << pid_filter);
+
 
 	//Setup PID
 	left_motor_pid.setPID(motor_kp, motor_ki, motor_kd);
@@ -44,6 +47,7 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 	left_motor_pid.setF(motor_f);
 	left_motor_pid.setFreq(frequency);
 	left_motor_pid.setOutputRampRate(ramp_rate); //ms-2
+	left_motor_pid.setOutputFilter(pid_filter);
 
 	right_motor_pid.setPID(motor_kp, motor_ki, motor_kd);
 	right_motor_pid.setMaxIOutput(VelocityMax);
@@ -51,6 +55,7 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 	right_motor_pid.setF(motor_f);
 	right_motor_pid.setFreq(frequency);
 	right_motor_pid.setOutputRampRate(ramp_rate); //ms-2
+	right_motor_pid.setOutputFilter(pid_filter);
 
 	return true;
 }
@@ -88,7 +93,8 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 
 	//PID for motor controls, getOutput(current reading, target)
 	//Reset when 0 commanded or when change of direction
-	if (v_left_cmd == 0 || v_left_cmd * v_left_cmd_prev < 0 || v_right_cmd == 0 || v_right_cmd * v_right_cmd_prev < 0)
+	//if (v_left_cmd == 0 || v_left_cmd * v_left_cmd_prev < 0 || v_right_cmd == 0 || v_right_cmd * v_right_cmd_prev < 0)
+	if(v_left_cmd == 0 && v_right_cmd == 0)
 	{
 		left_motor_pid.reset();
 		right_motor_pid.reset();
