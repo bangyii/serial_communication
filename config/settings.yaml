@@ -6,6 +6,8 @@ odom_update_method: "odom"
 
 wheel_acc_limit: 10.0
 vel_filter_size: 10
+x_joy_bias: -0.03
+y_joy_bias: -0.015
 
 #Covariances
 #IMU covariance matrices, measured using rosbag during experiment while driving around and calculated using numpy. 0 entry means negligible.

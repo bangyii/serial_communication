@@ -34,6 +34,8 @@ std::vector<double> CovTwist = {0.05, 0, 0, 0, 0, 0,
 							  	0, 0, 0, 0, 0.05, 0,
 							  	0, 0, 0, 0, 0, 0.05};
 
+float xJoyBias = 0.0, yJoyBias = 0.0;
+
 bool readParameters(ros::NodeHandle &nh);
 
 int main(int argc, char **argv)
@@ -119,8 +121,10 @@ int main(int argc, char **argv)
 		}
 
 		// Implicit conversion from uint16 to float
-		JoystickValue[0] = -(buf[1] / 2048.0 - 1.0) / 0.7;
-		JoystickValue[1] = -(buf[0] / 2048.0 - 1.0) / 0.7;
+		//JoystickValue[0] = -(buf[1] / 2048.0 - 1.0) / 0.7;
+		//JoystickValue[1] = -(buf[0] / 2048.0 - 1.0) / 0.7;
+		JoystickValue[1] = -(buf[0] - 2047.0) / 1500.0 - yJoyBias; //y
+		JoystickValue[0] = -(buf[1] - 2047.0) / 1500.0 - xJoyBias; //x
 
 		//Get acc and gyro from buffer
 		//imuReadings = {ax, ay, az, gx, gy, gz}
@@ -192,6 +196,9 @@ bool readParameters(ros::NodeHandle &nh)
 		ROS_WARN_STREAM("Parameter odom_cov not set. Using default setting: 0.05 * (6x6) Identity matrix");
 	if (!nh.getParam("twist_cov", CovTwist))
 		ROS_WARN_STREAM("Parameter velocity_cov not set. Using default setting: 0.05 * (6x6) Identity matrix");
-
+	if (!nh.getParam("x_joy_bias", xJoyBias))
+                ROS_WARN_STREAM("Parameter x_joy_bias not set. Using default setting: " << xJoyBias);
+	if (!nh.getParam("y_joy_bias", yJoyBias))
+                ROS_WARN_STREAM("Parameter y_joy_bias not set. Using default setting: " << yJoyBias);
 	return true;
 }
