@@ -121,10 +121,8 @@ int main(int argc, char **argv)
 		}
 
 		// Implicit conversion from uint16 to float
-		//JoystickValue[0] = -(buf[1] / 2048.0 - 1.0) / 0.7;
-		//JoystickValue[1] = -(buf[0] / 2048.0 - 1.0) / 0.7;
-		JoystickValue[1] = -(buf[0] - 2047.0) / 1500.0 - yJoyBias; //y
 		JoystickValue[0] = -(buf[1] - 2047.0) / 1500.0 - xJoyBias; //x
+		JoystickValue[1] = -(buf[0] - 2047.0) / 1500.0 - yJoyBias; //y
 
 		//Get acc and gyro from buffer
 		//imuReadings = {ax, ay, az, gx, gy, gz}
