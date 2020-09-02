@@ -37,8 +37,7 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 	if (!node_handle.getParam("w_tolerance", w_tolerance))
 		ROS_WARN_STREAM("Parameter w_tolerance not set for controller odom. Using default setting: " << w_tolerance);
 	if (!node_handle.getParam("pid_filter", pid_filter))
-                ROS_WARN_STREAM("Parameter pid_filter not set for controller odom. Using default setting: " << pid_filter);
-
+		ROS_WARN_STREAM("Parameter pid_filter not set for controller odom. Using default setting: " << pid_filter);
 
 	//Setup PID
 	left_motor_pid.setPID(motor_kp, motor_ki, motor_kd);
@@ -94,7 +93,7 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 	//PID for motor controls, getOutput(current reading, target)
 	//Reset when 0 commanded or when change of direction
 	//if (v_left_cmd == 0 || v_left_cmd * v_left_cmd_prev < 0 || v_right_cmd == 0 || v_right_cmd * v_right_cmd_prev < 0)
-	if(v_left_cmd == 0 && v_right_cmd == 0)
+	if (v_left_cmd == 0 && v_right_cmd == 0)
 	{
 		left_motor_pid.reset();
 		right_motor_pid.reset();
@@ -106,19 +105,36 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 	float left_pid_out, right_pid_out;
 
 	//Right wheel is too fast, ie turning left when commanded to go straight
-	if (current_angular - target_angular > w_tolerance && w_tolerance != 0 && v_left_cmd*v_right_cmd > 0)
-	{
-		ROS_WARN("Right wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
-		left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
-		right_pid_out = right_motor_pid.skipCycle();
-	}
+	// if (current_angular - target_angular > w_tolerance && w_tolerance != 0 && v_left_cmd*v_right_cmd > 0)
+	// {
+	// 	ROS_WARN("Right wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
+	// 	left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
+	// 	right_pid_out = right_motor_pid.skipCycle();
+	// }
 
-	//Left wheel is too fast, ie turning right when commanded to go straight
-	else if (current_angular - target_angular < -w_tolerance && w_tolerance != 0 && v_left_cmd*v_right_cmd > 0)
+	// //Left wheel is too fast, ie turning right when commanded to go straight
+	// else if (current_angular - target_angular < -w_tolerance && w_tolerance != 0 && v_left_cmd*v_right_cmd > 0)
+	// {
+	// 	ROS_WARN("Left wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
+	// 	right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
+	// 	left_pid_out = left_motor_pid.skipCycle();
+	// }
+	if (w_tolerance != 0 && v_left_cmd * v_right_cmd > 0)
 	{
-		ROS_WARN("Left wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
-		right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
-		left_pid_out = left_motor_pid.skipCycle();
+		ROS_INFO("Controlling angular tolerance");
+		if (current_angular - target_angular > w_tolerance)
+		{
+			ROS_WARN("Right wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
+			left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
+			right_pid_out = right_motor_pid.skipCycle();
+		}
+
+		else if (current_angular - target_angular < -w_tolerance)
+		{
+			ROS_WARN("Left wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once")
+			right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
+			left_pid_out = left_motor_pid.skipCycle();
+		}
 	}
 
 	else
