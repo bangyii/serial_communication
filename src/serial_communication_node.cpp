@@ -28,13 +28,13 @@ std::vector<double> CovPose = {0.05, 0, 0, 0, 0, 0,
 							   0, 0, 0, 0, 0.05, 0,
 							   0, 0, 0, 0, 0, 0.05};
 std::vector<double> CovTwist = {0.05, 0, 0, 0, 0, 0,
-							  	0, 0.05, 0, 0, 0, 0,
-							  	0, 0, 0.05, 0, 0, 0,
-							  	0, 0, 0, 0.05, 0, 0,
-							  	0, 0, 0, 0, 0.05, 0,
-							  	0, 0, 0, 0, 0, 0.05};
-
-float xJoyBias = 0.0, yJoyBias = 0.0;
+								0, 0.05, 0, 0, 0, 0,
+								0, 0, 0.05, 0, 0, 0,
+								0, 0, 0, 0.05, 0, 0,
+								0, 0, 0, 0, 0.05, 0,
+								0, 0, 0, 0, 0, 0.05};
+float xJoyBias = 0.0, yJoyBias = 0.0, joystickScale = 0.95;
+float joystick_deadzone = 0.05;
 
 bool readParameters(ros::NodeHandle &nh);
 
@@ -121,8 +121,21 @@ int main(int argc, char **argv)
 		}
 
 		// Implicit conversion from uint16 to float
-		JoystickValue[0] = -(buf[1] - 2047.0) / 1500.0 - xJoyBias; //x
-		JoystickValue[1] = -(buf[0] - 2047.0) / 1500.0 - yJoyBias; //y
+		JoystickValue[0] = (-(buf[1] - 2047.0) / 1500.0 - xJoyBias) / joystickScale; //x
+		JoystickValue[1] = (-(buf[0] - 2047.0) / 1500.0 - yJoyBias) / joystickScale; //y
+		if (JoystickValue[0] > 1)
+			JoystickValue[0] = 1;
+		else if (JoystickValue[0] < -1)
+			JoystickValue[0] = -1;
+		else if (fabs(JoystickValue[0]) < joystick_deadzone)
+			JoystickValue[0] = 0.0;
+
+		if (JoystickValue[1] > 1)
+			JoystickValue[1] = 1;
+		else if (JoystickValue[1] < -1)
+			JoystickValue[1] = -1;
+		else if (fabs(JoystickValue[1]) < joystick_deadzone)
+			JoystickValue[1] = 0.0;
 
 		//Get acc and gyro from buffer
 		//imuReadings = {ax, ay, az, gx, gy, gz}
@@ -195,8 +208,12 @@ bool readParameters(ros::NodeHandle &nh)
 	if (!nh.getParam("twist_cov", CovTwist))
 		ROS_WARN_STREAM("Parameter velocity_cov not set. Using default setting: 0.05 * (6x6) Identity matrix");
 	if (!nh.getParam("x_joy_bias", xJoyBias))
-                ROS_WARN_STREAM("Parameter x_joy_bias not set. Using default setting: " << xJoyBias);
+		ROS_WARN_STREAM("Parameter x_joy_bias not set. Using default setting: " << xJoyBias);
 	if (!nh.getParam("y_joy_bias", yJoyBias))
-                ROS_WARN_STREAM("Parameter y_joy_bias not set. Using default setting: " << yJoyBias);
+		ROS_WARN_STREAM("Parameter y_joy_bias not set. Using default setting: " << yJoyBias);
+	if (!nh.getParam("joystick_factor", joystickScale))
+		ROS_WARN_STREAM("Parameter joystick_factor not set. Using default setting: " << joystickScale);
+	if (!nh.getParam("joystick_deadzone", joystick_deadzone))
+		ROS_WARN_STREAM("Parameter joystick_deadzone not set. Using default setting: " << joystick_deadzone);
 	return true;
 }

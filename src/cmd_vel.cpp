@@ -131,7 +131,7 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 
 		else if (current_angular - target_angular < -w_tolerance)
 		{
-			ROS_WARN("Left wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once")
+			ROS_WARN("Left wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
 			right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
 			left_pid_out = left_motor_pid.skipCycle();
 		}
