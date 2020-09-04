@@ -17,7 +17,7 @@ Can alternatively be used to improve odometry.
 
 ## Publishers
 **/user/joy [std_msgs/Float32MultiArray]:**
-Joystick output from the wheelchair joystick
+Joystick output from the wheelchair joystick. First element is x direction, maximum when joystick pushed forward, value range [-1.0, 1.0]. Second element is y direction, maximum when pushed left, value range [-1.0, 1.0]
 
 **/velocities [geometry_msgs/Twist]:**
 linear and angular velocity based on wheel encoders
