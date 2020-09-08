@@ -4,10 +4,11 @@ publish_odom_tf: false
 apply_vel_filter: true
 odom_update_method: "odom"
 
-wheel_acc_limit: 15.0
+wheel_acc_limit: 20.0
 vel_filter_size: 5
 x_joy_bias: -0.03
 y_joy_bias: -0.015
+joystick_deadzone: 0.07
 
 #Covariances
 #IMU covariance matrices, measured using rosbag during experiment while driving around and calculated using numpy. 0 entry means negligible.
@@ -42,10 +43,10 @@ twist_cov: [0.1, 0, 0, 0, 0, 0,
 deadzone_pulse_width: 0
 
 #Controller parameters, With person
-motor_kp: 1.5 #0.5
-motor_ki: 3.0
-motor_kd: 0.0
-motor_f: 1.0
+motor_kp: 0.5 #0.5
+motor_ki: 2.0
+motor_kd: 0.02
+motor_f: 1.2
 frequency: 100.0 #controller frequency, default 5.0
 
 #angular tolerance for commanded ang_vel vs actual ang_vel. 
@@ -53,7 +54,7 @@ frequency: 100.0 #controller frequency, default 5.0
 # 0 to disable
 w_tolerance: 0 #default 0
 
-ramp_rate: 1.0 #max ramping rate for motor velocity, default 0.3
+motor_max_accel: 0.5 #max ramping rate for motor velocity, default 0.3
 pid_filter: 0.0 #exponential filter applied on pid output, increasing this decreases responsiveness
 
 ## calibration parameters odometry

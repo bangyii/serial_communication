@@ -93,7 +93,8 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 	//PID for motor controls, getOutput(current reading, target)
 	//Reset when 0 commanded or when change of direction
 	//if (v_left_cmd == 0 || v_left_cmd * v_left_cmd_prev < 0 || v_right_cmd == 0 || v_right_cmd * v_right_cmd_prev < 0)
-	if (v_left_cmd == 0 && v_right_cmd == 0)
+	//if (v_left_cmd == 0 && v_right_cmd == 0 || v_left_cmd * v_left_cmd_prev < 0 || v_right_cmd * v_right_cmd_prev < 0)
+	if(v_left_cmd == 0 && v_right_cmd == 0)
 	{
 		left_motor_pid.reset();
 		right_motor_pid.reset();
@@ -119,9 +120,10 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 	// 	right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
 	// 	left_pid_out = left_motor_pid.skipCycle();
 	// }
+	//ROS_INFO("%f %f", current_angular, target_angular);
 	if (w_tolerance != 0 && v_left_cmd * v_right_cmd > 0)
 	{
-		ROS_INFO("Controlling angular tolerance");
+		//ROS_INFO("Controlling angular tolerance");
 		if (current_angular - target_angular > w_tolerance)
 		{
 			ROS_WARN("Right wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
@@ -135,6 +137,13 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 			right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
 			left_pid_out = left_motor_pid.skipCycle();
 		}
+
+		else
+        	{
+                	left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
+        	        right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
+	        }
+
 	}
 
 	else
