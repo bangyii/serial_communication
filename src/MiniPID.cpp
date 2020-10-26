@@ -314,10 +314,29 @@ double MiniPID::getOutput(double actual, double setpoint)
 	//Output decent rate should be negative
 	if (outputRampRate != 0 && outputDescentRate != 0 && !bounded(output, lastOutput + outputDescentRate * dt, lastOutput + outputRampRate * dt))
 	{
-		output = clamp(output, lastOutput + outputDescentRate * dt, lastOutput + outputRampRate * dt);
+		//If output is positive, allow outputRampRate increase and outputDescentRate decrease
+		if(output >= 0)
+		{
+			if(!bounded(output, lastOutput + outputDescentRate * dt, lastOutput + outputRampRate * dt))
+			{ 
+				output = clamp(output, lastOutput + outputDescentRate * dt, lastOutput + outputRampRate * dt);
+				errorSum = oldErrorSum; 
+			}
+		}
+
+		else
+		{
+			if(!bounded(output, lastOutput - outputRampRate * dt, lastOutput - outputDescentRate * dt))
+			{
+				output = clamp(output, lastOutput - outputRampRate * dt, lastOutput - outputDescentRate * dt);
+				errorSum = oldErrorSum;
+			}
+		}
+		
+		// output = clamp(output, lastOutput + outputDescentRate * dt, lastOutput + outputRampRate * dt);
 
 		//Prevent errorsum from increasing if ramp rate is already capped
-		errorSum = oldErrorSum;
+		// errorSum = oldErrorSum;
 	}
 
 	if (minOutput != maxOutput && !bounded(output, minOutput, maxOutput))
