@@ -55,6 +55,7 @@ frequency: 100.0 #controller frequency, default 5.0
 w_tolerance: 0 #default 0
 
 motor_max_accel: 0.5 #max ramping rate for motor velocity, default 0.3
+motor_max_decel: -1.0 #max descent rate for motor velocity, default -0.8. Value must be negative
 pid_filter: 0.0 #exponential filter applied on pid output, increasing this decreases responsiveness
 
 ## calibration parameters odometry

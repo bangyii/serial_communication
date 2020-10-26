@@ -55,8 +55,8 @@ void Odom::poseCallback(const geometry_msgs::Pose2D msg_pose)
 ros::Subscriber Odom::getOdomUpdateSub(ros::NodeHandle& nh){
 	if (odom_update_method_ == "pose2D")
 		return nh.subscribe("/pose2D", 1, &Odom::poseCallback, this);
-	else if (odom_update_method_ == "odom")
-		return nh.subscribe("/ekf/odom", 1, &Odom::odomCallback, this);
+
+	return nh.subscribe("/ekf/odom", 1, &Odom::odomCallback, this);
 }
 
 std::vector<float> Odom::getIMU(std::vector<float> raw)

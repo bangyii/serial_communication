@@ -32,6 +32,8 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 		ROS_WARN_STREAM("Parameter frequency not set for controller cmd vel. Using default setting: " << frequency);
 	if (!node_handle.getParam("motor_max_accel", ramp_rate))
 		ROS_WARN_STREAM("Parameter motor_max_accel not set for controller cmd vel. Using default setting: " << ramp_rate);
+	if (!node_handle.getParam("motor_max_decel", descent_rate))
+		ROS_WARN_STREAM("Parameter motor_max_decel not set for controller cmd vel. Using default setting: " << descent_rate);
 	if (!node_handle.getParam("calibration_v_angular", calibration_v_angular_))
 		ROS_WARN_STREAM("Parameter calibration_v_angular not set for controller odom. Using default setting: " << calibration_v_angular_);
 	if (!node_handle.getParam("w_tolerance", w_tolerance))
@@ -46,6 +48,7 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 	left_motor_pid.setF(motor_f);
 	left_motor_pid.setFreq(frequency);
 	left_motor_pid.setOutputRampRate(ramp_rate); //ms-2
+	left_motor_pid.setOutputDescentRate(descent_rate);
 	left_motor_pid.setOutputFilter(pid_filter);
 
 	right_motor_pid.setPID(motor_kp, motor_ki, motor_kd);
@@ -54,6 +57,7 @@ bool CmdVel::readParameters(ros::NodeHandle &node_handle)
 	right_motor_pid.setF(motor_f);
 	right_motor_pid.setFreq(frequency);
 	right_motor_pid.setOutputRampRate(ramp_rate); //ms-2
+	right_motor_pid.setOutputDescentRate(descent_rate);
 	right_motor_pid.setOutputFilter(pid_filter);
 
 	return true;

@@ -23,6 +23,7 @@ public:
     //Motor pid
     float motor_kp = 1, motor_ki = 0, motor_kd = 0, motor_f = 0, frequency = 5.0;
     float ramp_rate = 0.3;
+    float descent_rate = -0.8;
     MiniPID left_motor_pid, right_motor_pid;
 
     //Parameters

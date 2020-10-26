@@ -53,6 +53,7 @@ void MiniPID::init()
 	firstRun = true;
 	reversed = false;
 	outputRampRate = 0;
+	outputDescentRate = 0;
 	lastOutput = 0;
 	outputFilter = 0;
 	setpointRange = 0;
@@ -310,9 +311,10 @@ double MiniPID::getOutput(double actual, double setpoint)
 	output = Foutput + Poutput + Ioutput + Doutput;
 
 	//Restrict output to our specified output and ramp limits
-	if (outputRampRate != 0 && !bounded(output, lastOutput - outputRampRate * dt, lastOutput + outputRampRate * dt))
+	//Output decent rate should be negative
+	if (outputRampRate != 0 && outputDescentRate != 0 && !bounded(output, lastOutput + outputDescentRate * dt, lastOutput + outputRampRate * dt))
 	{
-		output = clamp(output, lastOutput - outputRampRate * dt, lastOutput + outputRampRate * dt);
+		output = clamp(output, lastOutput + outputDescentRate * dt, lastOutput + outputRampRate * dt);
 
 		//Prevent errorsum from increasing if ramp rate is already capped
 		errorSum = oldErrorSum;
@@ -371,6 +373,14 @@ void MiniPID::reset()
 void MiniPID::setOutputRampRate(double rate)
 {
 	outputRampRate = rate;
+}
+
+/**Set the maximum rate the output can decrease per cycle.
+ * @param rate
+ **/
+void MiniPID::setOutputDescentRate(double rate)
+{
+	outputDescentRate = rate;
 }
 
 /** Set a limit on how far the setpoint can be from the current position

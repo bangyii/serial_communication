@@ -23,6 +23,7 @@ public:
 	void setFreq(double);
 	void reset();
 	void setOutputRampRate(double);
+	void setOutputDescentRate(double rate);
 	void setSetpointRange(double);
 	void setOutputFilter(double);
 	double skipCycle();
@@ -58,6 +59,7 @@ private:
 	bool reversed;
 
 	double outputRampRate;
+	double outputDescentRate;
 	double lastOutput;
 
 	double outputFilter;
