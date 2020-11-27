@@ -332,13 +332,9 @@ double MiniPID::getOutput(double actual, double setpoint)
 				errorSum = oldErrorSum;
 			}
 		}
-		
-		// output = clamp(output, lastOutput + outputDescentRate * dt, lastOutput + outputRampRate * dt);
-
-		//Prevent errorsum from increasing if ramp rate is already capped
-		// errorSum = oldErrorSum;
 	}
 
+	//Restrict output if output surpasses max and minimum values
 	if (minOutput != maxOutput && !bounded(output, minOutput, maxOutput))
 	{
 		output = clamp(output, minOutput, maxOutput);
