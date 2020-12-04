@@ -177,7 +177,7 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 	// if (velocitybuf[1] > 0 && velocitybuf[1] < deadzone_pulse_width)
 	// 	velocitybuf[1] = deadzone_pulse_width;
 
-	velocitybuf[2] = 0xFFFB;
+	velocitybuf[2] = (int16_t)0xFFFB;
 
 	v_left_cmd_prev = v_left_cmd;
 	v_right_cmd_prev = v_right_cmd;
