@@ -28,6 +28,8 @@ boost::asio::serial_port SerialComm::setupPort()
 		sp.set_option(boost::asio::serial_port::stop_bits());
 		sp.set_option(boost::asio::serial_port::character_size(8));
 		ROS_INFO_STREAM("Initializing serial connection");
+
+		//Clear RX buffer until end bytes are received, to synchronize data packets
 		bool flag_beginning = false;
 		while (!flag_beginning)
 		{
