@@ -72,7 +72,7 @@ void CmdVel::cmdCallback(const geometry_msgs::Twist msg_cmd)
 {
 	cmd_vel.linear.x = msg_cmd.linear.x;
 	cmd_vel.angular.z = msg_cmd.angular.z;
-	time_last_cmd = ros::Time::now();
+	// time_last_cmd = ros::Time::now();
 }
 
 ros::Subscriber CmdVel::getCmdVelSub(ros::NodeHandle &nh)
@@ -82,32 +82,32 @@ ros::Subscriber CmdVel::getCmdVelSub(ros::NodeHandle &nh)
 
 void CmdVel::getCmdVel(int16_t velocitybuf[3])
 {
-	ros::Duration timediff_cmd = timestamp - time_last_cmd; // negative if message received in last spinonce
-	if (timediff_cmd.toSec() > max_dt_cmd)
-	{
-		v_left_cmd = 0;
-		v_right_cmd = 0;
-	}
-	else
-	{
+	// ros::Duration timediff_cmd = timestamp - time_last_cmd; // negative if message received in last spinonce
+	// if (timediff_cmd.toSec() > max_dt_cmd)
+	// {
+	// 	v_left_cmd = 0;
+	// 	v_right_cmd = 0;
+	// }
+	// else
+	// {
 		v_left_cmd = cmd_vel.linear.x * calibration_cmd_lin_ - cmd_vel.angular.z * (base_width / 2) * calibration_cmd_ang_;
 		v_right_cmd = cmd_vel.linear.x * calibration_cmd_lin_ + cmd_vel.angular.z * (base_width / 2) * calibration_cmd_ang_;
-	}
+	// }
 
 	//PID for motor controls, getOutput(current reading, target)
 	//Reset when 0 commanded or when change of direction
 	//if (v_left_cmd == 0 || v_left_cmd * v_left_cmd_prev < 0 || v_right_cmd == 0 || v_right_cmd * v_right_cmd_prev < 0)
 	//if (v_left_cmd == 0 && v_right_cmd == 0 || v_left_cmd * v_left_cmd_prev < 0 || v_right_cmd * v_right_cmd_prev < 0)
-	if(v_left_cmd == 0 && v_right_cmd == 0)
-	{
-		left_motor_pid.reset();
-		right_motor_pid.reset();
-	}
+	// if(v_left_cmd == 0 && v_right_cmd == 0)
+	// {
+	// 	left_motor_pid.reset();
+	// 	right_motor_pid.reset();
+	// }
 
 	//Set a tolerance for acceptable deviation of angular velocity from commanded angular velocity
 	//Used to prevent swirling motion before reaching a steady straight motion
-	float target_angular = (v_right_cmd - v_left_cmd) / (base_width)*calibration_v_angular_;
-	float left_pid_out, right_pid_out;
+	// float target_angular = (v_right_cmd - v_left_cmd) / (base_width)*calibration_v_angular_;
+	// float left_pid_out, right_pid_out;
 
 	//Right wheel is too fast, ie turning left when commanded to go straight
 	// if (current_angular - target_angular > w_tolerance && w_tolerance != 0 && v_left_cmd*v_right_cmd > 0)
@@ -125,53 +125,57 @@ void CmdVel::getCmdVel(int16_t velocitybuf[3])
 	// 	left_pid_out = left_motor_pid.skipCycle();
 	// }
 	//ROS_INFO("%f %f", current_angular, target_angular);
-	if (w_tolerance != 0 && v_left_cmd * v_right_cmd > 0)
-	{
-		//ROS_INFO("Controlling angular tolerance");
-		if (current_angular - target_angular > w_tolerance)
-		{
-			ROS_WARN("Right wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
-			left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
-			right_pid_out = right_motor_pid.skipCycle();
-		}
+	// if (w_tolerance != 0 && v_left_cmd * v_right_cmd > 0)
+	// {
+	// 	//ROS_INFO("Controlling angular tolerance");
+	// 	if (current_angular - target_angular > w_tolerance)
+	// 	{
+	// 		ROS_WARN("Right wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
+	// 		left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
+	// 		right_pid_out = right_motor_pid.skipCycle();
+	// 	}
 
-		else if (current_angular - target_angular < -w_tolerance)
-		{
-			ROS_WARN("Left wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
-			right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
-			left_pid_out = left_motor_pid.skipCycle();
-		}
+	// 	else if (current_angular - target_angular < -w_tolerance)
+	// 	{
+	// 		ROS_WARN("Left wheel is too fast, exceeded angular speed deviation tolerance. Skipping right wheel PID cycle once");
+	// 		right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
+	// 		left_pid_out = left_motor_pid.skipCycle();
+	// 	}
 
-		else
-        	{
-                	left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
-        	        right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
-	        }
+	// 	else
+    //     	{
+    //             	left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
+    //     	        right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
+	//         }
 
-	}
+	// }
 
-	else
-	{
-		left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
-		right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
-	}
+	// else
+	// {
+	// 	left_pid_out = left_motor_pid.getOutput(v_left, v_left_cmd);
+	// 	right_pid_out = right_motor_pid.getOutput(v_right, v_right_cmd);
+	// }
 
 	//ROS_INFO("Post PID output left: %f \t right: %f", left_pid_out + v_left_cmd, right_pid_out + v_right_cmd);
 	//PID_out = F*setpoint + P*e + I*e_sum*dt + D*de/dt
-	velocitybuf[0] = (left_pid_out) / VelocityMax * 500;
-	velocitybuf[1] = (right_pid_out) / VelocityMax * 500;
+	// velocitybuf[0] = (left_pid_out) / VelocityMax * 500;
+	// velocitybuf[1] = (right_pid_out) / VelocityMax * 500;
 
-	//Left velocity is within deadzone
-	if (velocitybuf[0] < 0 && velocitybuf[0] > -deadzone_pulse_width)
-		velocitybuf[0] = -deadzone_pulse_width;
-	if (velocitybuf[0] > 0 && velocitybuf[0] < deadzone_pulse_width)
-		velocitybuf[0] = deadzone_pulse_width;
+	//Send velocity commands directly to STM, up to 3 decimal places
+	velocitybuf[0] = (int16_t)(v_left_cmd * 1000);
+	velocitybuf[1] = (int16_t)(v_right_cmd * 1000);
 
-	//Right velocity is within deadzone
-	if (velocitybuf[1] < 0 && velocitybuf[1] > -deadzone_pulse_width)
-		velocitybuf[1] = -deadzone_pulse_width;
-	if (velocitybuf[1] > 0 && velocitybuf[1] < deadzone_pulse_width)
-		velocitybuf[1] = deadzone_pulse_width;
+	// //Left velocity is within deadzone
+	// if (velocitybuf[0] < 0 && velocitybuf[0] > -deadzone_pulse_width)
+	// 	velocitybuf[0] = -deadzone_pulse_width;
+	// if (velocitybuf[0] > 0 && velocitybuf[0] < deadzone_pulse_width)
+	// 	velocitybuf[0] = deadzone_pulse_width;
+
+	// //Right velocity is within deadzone
+	// if (velocitybuf[1] < 0 && velocitybuf[1] > -deadzone_pulse_width)
+	// 	velocitybuf[1] = -deadzone_pulse_width;
+	// if (velocitybuf[1] > 0 && velocitybuf[1] < deadzone_pulse_width)
+	// 	velocitybuf[1] = deadzone_pulse_width;
 
 	velocitybuf[2] = 0xFFFB;
 

@@ -95,6 +95,7 @@ int main(int argc, char **argv)
 		{
 			//Get cmd_vel from topic and then write to MCU
 			cmdVel.getCmdVel(velocitybuf);
+			ROS_INFO("Wrote velocity %d %d", velocitybuf[0], velocitybuf[1]);
 			write(sp, boost::asio::buffer(velocitybuf));
 
 			//Read data from MCU and place into temp buffer

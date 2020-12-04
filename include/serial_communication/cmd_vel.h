@@ -27,7 +27,7 @@ public:
     MiniPID left_motor_pid, right_motor_pid;
 
     //Parameters
-    ros::Time time_last_cmd;
+    // ros::Time time_last_cmd;
     geometry_msgs::Twist cmd_vel;
     float calibration_cmd_ang_ = 1.0;
     float calibration_cmd_lin_ = 1.0;
