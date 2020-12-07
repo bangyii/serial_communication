@@ -51,16 +51,6 @@ odom -> base_link TF can be broadcasted by this node, just enable *publish_odom_
 
 **twist_cov:** 6x6 covariance matrix of twist (linear and angular) in */encoders/odom* topic. Values should be set accurately if twist is fed into ekf algorithm. 
 
-**calibration_v_angular:** This value affects the angular velocity reported by this node based on the encoder readings from MCU. Formula is as follows:
-
-        v_angular = (v_right - v_left) / (base_width) * calibration_v_angular_
-
-Can be used to reduce angular drift of robot. To calibratate, turn the robot 1 round and make sure that */encoders/odom* reports the orientation as [0,0,0,1] where *w* is 1. If not, increase or decrease this parameter to calibrate it.
-
-**calibration_v_linear:** This value affects the linear velocity reported by this node based on the encoder readings from MCU. Formula is as follows:
-
-        v_linear = (v_right + v_left) / 2 * calibration_v_linear_
-
 **bias_acc_x:** This value offsets the x-acceleration in */imu*. Units are in m/s^2. Calibration formula is as below:
 
         ax = ax * cal_imu_acc_ - bias_acc_x_
@@ -95,46 +85,6 @@ This means that if the IMU is reporting an x angular velocity of 1 when it shoul
         v_right_cmd = cmd_vel.linear.x * calibration_cmd_lin_ + cmd_vel.angular.z * (base_width / 2) * calibration_cmd_ang_
 
 **calibration_cmd_lin:** Same as *calibration_cmd_ang*. Usually kept at 1.0 as well.
-
-**apply_vel_filter:** Set true to enable moving average filter on the left/right wheel velocities read from processing raw encoder readings from MCU.
-
-**vel_filter_size:** Integer value defining the size of the moving average filter window. A value of 5 will keep 5 values in the moving average window.
-
-**wheel_acc_limit:** Manually defined acceleration limit of the wheels. This is also used to reduce noise in the readings of left/right wheel velocities. If the velocities are found the have too high an acceleration, then the left/right velocities will only be incremeneted/deceremented by *wheel_acc_limit * dt*.
-
-        v_right = v_right_prev + wheel_acc_limit_ * dt * sign(acc_right)
-        v_left = v_left_prev + wheel_acc_limit_ * dt * sign(acc_left)
-
-**deadzone_pulse_width:** Pulsewidth that is considered deadzone for the wheels. Value ranges from 0-500. If set to 500, motors will move at full speed no matter what velocity is commanded. 0 means this parameter has no effect, and the motors might experience deadzones, where the commanded velocity is not high enough to move the wheels. This parameter is not recommeneded to be used if PID values below are defined.
-
-**motor_kp:** Proportional gain for PID of the wheels. Applies to both wheels. 
-
-**motor_ki:** Integral gain for the PID of the wheels. Applies to both wheels.
-
-**motor_kd:** Derivative gain for the PID of the wheels. Applies to both wheels.
-
-**motor_f:** Feedforward factor for the PID of the wheels. Applies to both wheels. Value should be at least 1. PID formula is as below:
-
-        Foutput = motor_f * motor_cmd
-        Poutput = motor_kp * error
-        Ioutput = motor_ki * errorSum * dt
-        Doutput = motor_kd * errorRate
-
-        motorPID = Foutput + Poutput + Ioutput + Doutput
-
-        motorPWM = motorPID / pwmScaling
-
-**frequency:** Frequency at which to run the PID loop.
-
-**motor_max_accel:** Ramping rate of the PID output, this is used to prevent jerky motions of the motor. If the motorPID calculated exceeds the motor_max_accel, then motorPID is limited to an increase of motor_max_accel * dt.
-
-        motorPID = clamp(motorPID, lastMotorPID - motor_max_accel * dt, lastMotorPID + motor_max_accel * dt)
-
-**w_tolerance:** Tolerance for deviation in current yaw velocity from commanded yaw velocity. For example, if the motors are commanded to go straight, the yaw velocity is 0. However, due to different timings in the ramping of each motor, the robot may turn left slightly before going straight. Meaning at the beggining of the motion, yaw velocity may not actually be 0, and it may be a positive number (turning clockwise, left).
-
-This parameter should stop the ramping of the faster wheel to allow the other wheel to catch up. 
-
-*Note that this parameter does not function correctly yet*
 
 ## Troubleshooting:
 
