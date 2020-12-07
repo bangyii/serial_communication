@@ -37,6 +37,8 @@ twist_cov: [0.1, 0, 0, 0, 0, 0,
            0, 0, 0, 0, 0, 0.1]
 
 ## calibration parameters odometry
+calibration_v_angular: 0.88 #0.92	
+calibration_v_linear: 0.95 #0.92
 calibration_cmd_ang: 1.0 #0.42
 calibration_cmd_lin: 1.0 #0.7
 

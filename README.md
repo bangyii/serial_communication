@@ -79,6 +79,16 @@ This means that if the IMU is reporting an x angular velocity of 1 when it shoul
 
 **publish_odom_tf:** Set true to publish odom -> base_link tf
 
+**calibration_v_angular:** This value affects the angular velocity reported by this node based on the velocities from MCU. Formula is as follows:	
+
+        v_angular = (v_right - v_left) / (base_width) * calibration_v_angular_	
+
+Can be used to reduce angular drift of robot. To calibratate, turn the robot 1 round and make sure that */encoders/odom* reports the orientation as [0,0,0,1] where *w* is 1. If not, increase or decrease this parameter to calibrate it.	
+
+**calibration_v_linear:** This value affects the linear velocity reported by this node based on the velocities from MCU. Formula is as follows:	
+
+        v_linear = (v_right + v_left) / 2 * calibration_v_linear_
+
 **calibration_cmd_ang:** Scales how much the commanded left/right wheel velocity is affected by the commanded angular velocity. This value is usually not used and kept at 1.0 to negate its effect.
 
         v_left_cmd = cmd_vel.linear.x * calibration_cmd_lin_ - cmd_vel.angular.z * (base_width / 2) * calibration_cmd_ang_
