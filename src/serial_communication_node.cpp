@@ -84,13 +84,9 @@ int main(int argc, char **argv)
 
 	while (ros::ok())
 	{
-		// time_now = std::chrono::system_clock::now();
+		ros::spinOnce();
 
-		ros::spinOnce(); // check for incoming messages
-		// static uint32_t cnt = 0;
-		// ROS_INFO_STREAM("cnt: " << (cnt++) / 200.0 ) ;
-
-		static uint8_t buf_temp[22];
+		uint8_t buf_temp[22];
 		try
 		{
 			//Get cmd_vel from topic and then write to MCU
@@ -106,17 +102,16 @@ int main(int argc, char **argv)
 			ROS_WARN("Error: %s", e.what());
 			break;
 		}
+
 		//Decode bytes received from MCU
 		for (uint8_t i = 0; i < 11; i++)
-		{
-			//ROS_INFO_STREAM((uint16_t)buf_temp[i]);
 			buf[i] = buf_temp[2 * i + 1] << 8 | buf_temp[2 * i];
-			// ROS_INFO_STREAM(buf[i]);
-		}
 
 		if (buf[10] != int16_t(0xabcd))
 		{
-			std::cout << "data lost skip this transmission, with buf " << std::hex << buf[10] << std::endl;
+			std::cout << "Data lost, skip this transmission with buf " << std::hex << buf[10] << ". Initializing re-synchronisation\n";
+			serial.syncSerial(&sp);
+			std::cout << "Re-synchronisation complete\n";
 			continue;
 		}
 
@@ -138,14 +133,14 @@ int main(int argc, char **argv)
 			JoystickValue[1] = 0.0;
 
 		//Get acc and gyro from buffer
-		//imuReadings = {ax, ay, az, gx, gy, gz}
+		//imuReadings : {ax, ay, az, gx, gy, gz}
 		std::vector<float> imuReadings = odom.getIMU(std::vector<float>(buf + 4, buf + 10));
 
 		//Get raw velocity from encoders
-		//velocity_raw = {v_left, v_right}
-		std::vector<float> velocity_raw = cmdVel.getVelFromEncoder(std::vector<float>(buf + 2, buf + 4));
+		//velocity_raw : {v_left, v_right}, data received in buffer is multiplied by 1000
+		std::vector<float> velocity_raw = {buf[2] / (float)1000.0, buf[3] / (float)1000.0};
 
-		//currentOdom = {x_odom, y_odom, theta}
+		//currentOdom : {x_odom, y_odom, theta}
 		std::vector<float> currentOdom = odom.getOdom(velocity_raw);
 
 		// Publish Joystick data
@@ -155,10 +150,9 @@ int main(int argc, char **argv)
 		velocity_raw_pub.publish(rosmsg::makeFloat32MultiArray(velocity_raw));
 
 		// Publish Velocity data
-		//velocity = {v_linear, v_angular}
+		//velocity : {v_linear, v_angular}
 		std::vector<float> velocity = odom.getVelocity();
 		velocity_pub.publish(rosmsg::makeTwist(velocity[0], velocity[1]));
-		cmdVel.setCurrentAngular(velocity[1]);
 
 		// Publish Odometry Pose2D
 		odom2d_pub.publish(rosmsg::makePose2D(currentOdom[0], currentOdom[1], currentOdom[2]));

@@ -30,20 +30,7 @@ boost::asio::serial_port SerialComm::setupPort()
 		ROS_INFO_STREAM("Initializing serial connection");
 
 		//Clear RX buffer until end bytes are received, to synchronize data packets
-		bool flag_beginning = false;
-		while (!flag_beginning)
-		{
-			uint8_t temp[1];
-			read(sp, boost::asio::buffer(temp));
-			if (temp[0] == 0xcd)
-			{
-				read(sp, boost::asio::buffer(temp));
-				if (temp[0] == 0xab)
-				{
-					flag_beginning = true;
-				}
-			}
-		}
+		syncSerial(&sp);
 		ROS_INFO_STREAM("Achieved connection to MCU");
 	}
 
@@ -53,6 +40,21 @@ boost::asio::serial_port SerialComm::setupPort()
 	}
 
 	return sp;
+}
+
+void SerialComm::syncSerial(boost::asio::serial_port* sp_ptr)
+{
+	while (true)
+	{
+		uint8_t temp[1];
+		read(*sp_ptr, boost::asio::buffer(temp));
+		if (temp[0] == 0xcd)
+		{
+			read(*sp_ptr, boost::asio::buffer(temp));
+			if (temp[0] == 0xab)
+				break;
+		}
+	}
 }
 
 void SerialComm::runIOService()

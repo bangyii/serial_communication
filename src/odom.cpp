@@ -91,8 +91,6 @@ std::vector<float> Odom::getOdom(std::vector<float> velocity)
 	y_odom += delta_y;
 	theta_odom += delta_th;
 
-//	ROS_INFO("Time difference since last cmd calc: %f \t dx: %f \t dy: %f", dt, delta_x, delta_y);
-
 	//Set previous time to now
 	time_prev = std::chrono::system_clock::now();
 	return std::vector<float>({x_odom, y_odom, theta_odom});

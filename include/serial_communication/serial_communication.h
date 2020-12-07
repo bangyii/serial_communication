@@ -14,6 +14,7 @@ public:
     boost::asio::serial_port setupPort();
     void getCmdVel(int16_t velocitybuf[3]);
     void runIOService();
+    void syncSerial(boost::asio::serial_port* sp_ptr);
 
     /**
      * Param variables
