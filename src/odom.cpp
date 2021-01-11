@@ -64,9 +64,11 @@ std::vector<float> Odom::getIMU(std::vector<float> raw)
 	ax = raw[0] / 16384.0 * cal_imu_acc_ - bias_acc_x_;
 	ay = raw[1] / 16384.0 * cal_imu_acc_ - bias_acc_y_;
 	az = raw[2] / 16384.0 * cal_imu_acc_ - bias_acc_z_;
-	gx = raw[3] / 131.0 / 180.0 * 3.14159265359 * cal_imu_gyro_ - bias_gyro_x_;
-	gy = raw[4] / 131.0 / 180.0 * 3.14159265359 * cal_imu_gyro_ - bias_gyro_y_;
-	gz = raw[5] / 131.0 / 180.0 * 3.14159265359 * cal_imu_gyro_ - bias_gyro_z_;
+
+	//500 units/dps
+	gx = raw[3] / 65.53 / 180.0 * 3.14159265359 * cal_imu_gyro_ - bias_gyro_x_;
+	gy = raw[4] / 65.53 / 180.0 * 3.14159265359 * cal_imu_gyro_ - bias_gyro_y_;
+	gz = raw[5] / 65.53 / 180.0 * 3.14159265359 * cal_imu_gyro_ - bias_gyro_z_;
     
     ax *= 9.81;
     ay *= 9.81;
