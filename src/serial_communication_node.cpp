@@ -163,7 +163,7 @@ int main(int argc, char **argv)
 											  CovPose, CovTwist));
 
 		// Publish IMU data
-		acceleration_pub.publish(rosmsg::makeIMU(rosmsg::makeHeader("base_link", ros::Time::now()),
+		acceleration_pub.publish(rosmsg::makeIMU(rosmsg::makeHeader("imu", ros::Time::now()),
 												 0, 0, 0,
 												 imuReadings[3], imuReadings[4], imuReadings[5],
 												 imuReadings[0], imuReadings[1], imuReadings[2],

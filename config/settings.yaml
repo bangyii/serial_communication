@@ -1,11 +1,11 @@
 ### Settings serial communication node
-usb_port: "/dev/FT232_USB"
+usb_port: "/dev/FT232_USB" 
 publish_odom_tf: false
 odom_update_method: "odom"
 
 x_joy_bias: -0.03
 y_joy_bias: -0.015
-joystick_deadzone: 0.15
+joystick_deadzone: 0.10
 
 #Covariances
 #IMU covariance matrices, measured using rosbag during experiment while driving around and calculated using numpy. 0 entry means negligible.
@@ -16,7 +16,7 @@ joystick_deadzone: 0.15
 
 gyro_cov: [0.002, 0, 0,
            0, 0.002, 0,
-           0, 0, 0.002]
+           0, 0, 0.11]
 
 acc_cov: [0.002, 0, 0,
           0, 0.002, 0,
@@ -37,19 +37,19 @@ twist_cov: [0.1, 0, 0, 0, 0, 0,
            0, 0, 0, 0, 0, 0.1]
 
 ## calibration parameters odometry
-calibration_v_angular: 0.91 #0.88	
+calibration_v_angular: 1.00 #0.88	
 calibration_v_linear: 1.0 #0.95
 calibration_cmd_ang: 1.0 #0.42
 calibration_cmd_lin: 1.0 #0.7
 
 ## calibration parameters imu
-bias_acc_x: 0.035
-bias_acc_y: 0.015
+bias_acc_x: 0.028
+bias_acc_y: -0.090
 bias_acc_z: 0 
-bias_gyro_x: 0.0
-bias_gyro_y: 0.0 
-bias_gyro_z: -0.00325
+bias_gyro_x: -0.01
+bias_gyro_y: -0.13 
+bias_gyro_z: 0.0238
 cal_imu_acc: 1.0
-cal_imu_gyro: 1.0
+cal_imu_gyro: 1.155555
 
 
