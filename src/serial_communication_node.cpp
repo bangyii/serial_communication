@@ -35,6 +35,7 @@ std::vector<double> CovTwist = {0.05, 0, 0, 0, 0, 0,
 								0, 0, 0, 0, 0, 0.05};
 float xJoyBias = 0.0, yJoyBias = 0.0, joystickScale = 0.95;
 float joystick_deadzone = 0.05;
+float base_width = 0.5;
 
 bool readParameters(ros::NodeHandle &nh);
 
@@ -72,7 +73,7 @@ int main(int argc, char **argv)
 	std::vector<float> JoystickValue = {0, 0};
 
 	//TODO: unnecessary duplicate of variable
-	odom.base_width = cmdVel.base_width = 0.5;
+	odom.base_width = cmdVel.base_width = base_width;
 
 	// Set up
 	boost::asio::serial_port sp = serial.setupPort();
@@ -207,6 +208,8 @@ bool readParameters(ros::NodeHandle &nh)
 		ROS_WARN_STREAM("Parameter y_joy_bias not set. Using default setting: " << yJoyBias);
 	if (!nh.getParam("joystick_factor", joystickScale))
 		ROS_WARN_STREAM("Parameter joystick_factor not set. Using default setting: " << joystickScale);
+	if (!nh.getParam("base_width", base_width))
+		ROS_WARN_STREAM("Parameter base_width not set. Using default setting: " << base_width);
 	if (!nh.getParam("joystick_deadzone", joystick_deadzone))
 		ROS_WARN_STREAM("Parameter joystick_deadzone not set. Using default setting: " << joystick_deadzone);
 	return true;

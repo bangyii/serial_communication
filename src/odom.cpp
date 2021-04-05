@@ -9,10 +9,10 @@ Odom::Odom()
 
 bool Odom::readParameters(ros::NodeHandle &node_handle)
 {
-	if (!node_handle.getParam("calibration_v_angular", calibration_v_angular_))
-		ROS_WARN_STREAM("Parameter calibration_v_angular not set for controller odom. Using default setting: " << calibration_v_angular_);
-	if (!node_handle.getParam("calibration_v_linear", calibration_v_linear_))
-		ROS_WARN_STREAM("Parameter calibration_v_linear not set for controller odom. Using default setting: " << calibration_v_linear_);
+	if (!node_handle.getParam("calibration_v_left", calibration_v_left))
+		ROS_WARN_STREAM("Parameter calibration_v_left not set for controller odom. Using default setting: " << calibration_v_left);
+	if (!node_handle.getParam("calibration_v_right", calibration_v_right))
+		ROS_WARN_STREAM("Parameter calibration_v_right not set for controller odom. Using default setting: " << calibration_v_right);
 	if (!node_handle.getParam("bias_acc_x", bias_acc_x_))
 		ROS_WARN_STREAM("Parameter bias_acc_x not set for controller odom. Using default setting: " << bias_acc_x_);
 	if (!node_handle.getParam("bias_acc_y", bias_acc_y_))
@@ -81,8 +81,10 @@ std::vector<float> Odom::getOdom(std::vector<float> velocity)
 	float v_left = velocity[0];
 	float v_right = velocity[1];
 	// Odometry calculation
-	v_linear = (v_right + v_left) / 2 * calibration_v_linear_;
-	v_angular = (v_right - v_left) / (base_width) * calibration_v_angular_;
+	v_left *= calibration_v_left;
+	v_right *= calibration_v_right;
+	v_linear = (v_right + v_left) / 2;
+	v_angular = (v_right - v_left) / (base_width);
 	std::chrono::duration<float> elapsed_seconds = std::chrono::system_clock::now() - time_prev;
 	float dt = elapsed_seconds.count();
 

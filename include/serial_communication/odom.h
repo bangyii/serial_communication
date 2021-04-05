@@ -25,8 +25,8 @@ public:
 
     // Calibrated sensor parameters
     // Odometry parameters
-    float calibration_v_angular_ = 1.0;
-    float calibration_v_linear_ = 1.0;
+    float calibration_v_left = 1.0;
+    float calibration_v_right = 1.0;
 
     // IMU parameters
     float bias_acc_x_ = 0;

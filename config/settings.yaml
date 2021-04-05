@@ -1,5 +1,6 @@
 ### Settings serial communication node
-usb_port: "/dev/FT232_USB" 
+#usb_port: "/dev/FT232_USB" 
+usb_port: "/dev/ttyUSB0" 
 publish_odom_tf: false
 odom_update_method: "odom"
 
@@ -16,7 +17,7 @@ joystick_deadzone: 0.10
 
 gyro_cov: [0.002, 0, 0,
            0, 0.002, 0,
-           0, 0, 0.11]
+           0, 0, 0.50]
 
 acc_cov: [0.002, 0, 0,
           0, 0.002, 0,
@@ -37,18 +38,19 @@ twist_cov: [0.1, 0, 0, 0, 0, 0,
            0, 0, 0, 0, 0, 0.1]
 
 ## calibration parameters odometry
-calibration_v_angular: 1.00 #0.88	
-calibration_v_linear: 1.0 #0.95
+calibration_v_left: 1.00645
+calibration_v_right: 0.99365
 calibration_cmd_ang: 1.0 #0.42
 calibration_cmd_lin: 1.0 #0.7
+base_width: 0.51598301091227687
 
 ## calibration parameters imu
-bias_acc_x: 0.028
-bias_acc_y: -0.090
+bias_acc_x: 0.005
+bias_acc_y: 0.023
 bias_acc_z: 0 
-bias_gyro_x: -0.01
+bias_gyro_x: 0.063
 bias_gyro_y: -0.13 
-bias_gyro_z: 0.0238
+bias_gyro_z: 0.0038
 cal_imu_acc: 1.0
 cal_imu_gyro: 1.155555
 
