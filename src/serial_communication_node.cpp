@@ -9,8 +9,12 @@
 #include <tf/tf.h>
 #include <tf/transform_broadcaster.h>
 #include <std_msgs/Float32MultiArray.h> // ROS message used for joystick data
+#include <std_msgs/Bool.h>
 #include <boost/asio.hpp>				// Include boost library function
 #include <chrono>
+
+#define BUFFER_SIZE 12
+#define TEMP_BUFFER_SIZE 24
 
 std::vector<double> CovOrient = {0.05, 0, 0,
 								 0, 0.05, 0,
@@ -65,12 +69,14 @@ int main(int argc, char **argv)
 	ros::Publisher velocity_raw_pub = node_handle.advertise<std_msgs::Float32MultiArray>("/velocities_raw", 1);
 	ros::Publisher odom_pub = node_handle.advertise<nav_msgs::Odometry>("/encoders/odom", 1);
 	ros::Publisher odom2d_pub = node_handle.advertise<geometry_msgs::Pose2D>("/encoders/pose2D", 1);
+	ros::Publisher estop_pub = node_handle.advertise<std_msgs::Bool>("/e_stop", 1, true);
 	tf::TransformBroadcaster odom_broadcaster;
 
 	// Variables
-	int16_t buf[11];		// Define the received data
+	int16_t buf[BUFFER_SIZE];		// Define the received data
 	int16_t velocitybuf[3]; //define wheelchair speed including side1 x and side2 y as well as one header for data verification.
 	std::vector<float> JoystickValue = {0, 0};
+	int16_t e_stop = 0;
 
 	//TODO: unnecessary duplicate of variable
 	odom.base_width = cmdVel.base_width = base_width;
@@ -87,7 +93,7 @@ int main(int argc, char **argv)
 	{
 		ros::spinOnce();
 
-		uint8_t buf_temp[22];
+		uint8_t buf_temp[TEMP_BUFFER_SIZE];
 		try
 		{
 			//Get cmd_vel from topic and then write to MCU
@@ -105,12 +111,13 @@ int main(int argc, char **argv)
 		}
 
 		//Decode bytes received from MCU
-		for (uint8_t i = 0; i < 11; i++)
+		for (uint8_t i = 0; i < BUFFER_SIZE; i++)
 			buf[i] = buf_temp[2 * i + 1] << 8 | buf_temp[2 * i];
 
-		if (buf[10] != int16_t(0xabcd))
+		//Check if last byte received is correct
+		if (buf[BUFFER_SIZE - 1] != int16_t(0xabcd))
 		{
-			std::cout << "Data lost, skip this transmission with buf " << std::hex << buf[10] << ". Initializing re-synchronisation\n";
+			std::cout << "Data lost, skip this transmission with buf " << std::hex << buf[BUFFER_SIZE - 1] << ". Initializing re-synchronisation\n";
 			serial.syncSerial(&sp);
 			std::cout << "Re-synchronisation complete\n";
 			continue;
@@ -133,6 +140,9 @@ int main(int argc, char **argv)
 		else if (fabs(JoystickValue[1]) < joystick_deadzone)
 			JoystickValue[1] = 0.0;
 
+		//Get estop status from MCU
+		e_stop = buf[10];
+
 		//Get acc and gyro from buffer
 		//imuReadings : {ax, ay, az, gx, gy, gz}
 		std::vector<float> imuReadings = odom.getIMU(std::vector<float>(buf + 4, buf + 10));
@@ -143,6 +153,11 @@ int main(int argc, char **argv)
 
 		//currentOdom : {x_odom, y_odom, theta}
 		std::vector<float> currentOdom = odom.getOdom(velocity_raw);
+		
+		// Publish estop state
+		std_msgs::Bool e_stop_status;
+		e_stop_status.data = e_stop == 1.0;
+		estop_pub.publish(e_stop_status);
 
 		// Publish Joystick data
 		joystick_pub.publish(rosmsg::makeFloat32MultiArray(JoystickValue));
