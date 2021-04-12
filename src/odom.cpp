@@ -1,6 +1,7 @@
 #include <serial_communication/odom.h>
 #include <tf/transform_datatypes.h>
 #include <vector>
+#include <cmath>
 
 Odom::Odom()
 {
@@ -73,6 +74,9 @@ std::vector<float> Odom::getIMU(std::vector<float> raw)
     ax *= 9.81;
     ay *= 9.81;
     az *= 9.81;
+
+if(fabs(gz) < 0.001)
+gz = 0.00;
 	return std::vector<float> ({ax, ay, az, gx, gy, gz});
 }
 

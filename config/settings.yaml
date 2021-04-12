@@ -1,6 +1,5 @@
 ### Settings serial communication node
-#usb_port: "/dev/FT232_USB" 
-usb_port: "/dev/ttyUSB0" 
+usb_port: "/dev/FT232_USB" 
 publish_odom_tf: false
 odom_update_method: "odom"
 
@@ -50,7 +49,7 @@ bias_acc_y: 0.023
 bias_acc_z: 0 
 bias_gyro_x: 0.063
 bias_gyro_y: -0.13 
-bias_gyro_z: 0.0038
+bias_gyro_z: -0.0007
 cal_imu_acc: 1.0
 cal_imu_gyro: 1.155555
 
