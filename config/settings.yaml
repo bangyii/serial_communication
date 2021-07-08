@@ -1,5 +1,5 @@
 ### Settings serial communication node
-usb_port: "/dev/FT232_USB" 
+usb_port: "/dev/STM32_SERIAL" 
 publish_odom_tf: false
 odom_update_method: "odom"
 
@@ -44,12 +44,18 @@ calibration_cmd_lin: 1.0 #0.7
 base_width: 0.51598301091227687
 
 ## calibration parameters imu
-bias_acc_x: 0.005
-bias_acc_y: 0.023
+# bias_acc_x: 0.005
+# bias_acc_y: 0.023
+#bias_acc_x: -0.008
+#unit g
+bias_acc_x: 0.0060
+bias_acc_y: 0.0045
 bias_acc_z: 0 
 bias_gyro_x: 0.063
 bias_gyro_y: -0.13 
-bias_gyro_z: -0.0007
+#bias_gyro_z: -0.0007
+bias_gyro_z: -0.01
+# bias_gyro_z: 0.1
 cal_imu_acc: 1.0
 cal_imu_gyro: 1.155555
 
