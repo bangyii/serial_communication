@@ -22,7 +22,7 @@ boost::asio::serial_port SerialComm::setupPort()
 	boost::asio::serial_port sp(iosev);
 	try{
 		sp.open(usb_port_); // Define the serial port of the transmission // serial_port sp(iosev, "/dev/USB_MCU");
-		sp.set_option(boost::asio::serial_port::baud_rate(115200));
+		sp.set_option(boost::asio::serial_port::baud_rate(921600));
 		sp.set_option(boost::asio::serial_port::flow_control());
 		sp.set_option(boost::asio::serial_port::parity());
 		sp.set_option(boost::asio::serial_port::stop_bits());
